@@ -72,7 +72,7 @@ class LanguageDetector:
                     "script_analysis": {},
                     "linguistic_features": {},
                 }
-            
+
             # Limit input text length to prevent DoS
             if len(text) > 10000:
                 text = text[:10000]

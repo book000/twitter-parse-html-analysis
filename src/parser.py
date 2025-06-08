@@ -21,14 +21,14 @@ from bs4 import BeautifulSoup
 
 from .language_detector import LanguageDetector
 from .utils import (
-    format_time_duration, 
-    safe_int_convert, 
-    safe_json_load, 
-    safe_json_loads, 
+    format_time_duration,
+    safe_int_convert,
+    safe_json_load,
+    safe_json_loads,
     sanitize_log_message,
     safe_file_path,
     sanitize_html_content,
-    validate_html_size
+    validate_html_size,
 )
 
 
@@ -240,10 +240,14 @@ class TwitterDataExtractor:
 
         except ValueError as e:
             # Safe JSON loading errors
-            self.logger.error(f"JSON読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}")
+            self.logger.error(
+                f"JSON読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
+            )
             return None
         except Exception as e:
-            self.logger.error(f"ファイル読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}")
+            self.logger.error(
+                f"ファイル読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
+            )
             return None
 
     def _extract_comprehensive_tweet_data(
@@ -265,12 +269,14 @@ class TwitterDataExtractor:
             if html_content:
                 # Validate HTML size to prevent DoS
                 if not validate_html_size(html_content):
-                    data["extraction_errors"].append("HTML content too large, truncated")
+                    data["extraction_errors"].append(
+                        "HTML content too large, truncated"
+                    )
                     html_content = html_content[:100000]  # Truncate if too large
-                
+
                 # Sanitize HTML content to prevent XSS
                 html_content = sanitize_html_content(html_content)
-            
+
             soup = BeautifulSoup(html_content, "html.parser") if html_content else None
             tweet_text = tweet.get("tweetText", "")
 
@@ -450,8 +456,8 @@ class TwitterDataExtractor:
 
             # Hashtag analysis - ReDoS-safe pattern
             hashtags = re.findall(
-                r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]{1,100}?(?=\s|$|[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF])", 
-                tweet_text[:5000]  # Limit input length
+                r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]{1,100}?(?=\s|$|[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF])",
+                tweet_text[:5000],  # Limit input length
             )
             data["hashtag_count"] = len(hashtags)
             data["hashtags"] = "; ".join(hashtags)

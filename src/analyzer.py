@@ -143,7 +143,9 @@ class VideoMisuseAnalyzer:
                             self.video_misuse_data.append(tweet)
 
             except Exception as e:
-                self.logger.error(f"ファイル読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}")
+                self.logger.error(
+                    f"ファイル読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
+                )
 
         self.logger.info(f"総ツイート数: {total_tweets:,}")
         self.logger.info(f"動画付きツイート数: {video_tweets:,}")
