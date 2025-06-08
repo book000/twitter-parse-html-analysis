@@ -48,6 +48,7 @@ Examples:
     # Input/Output options
     parser.add_argument(
         "--input",
+        "--input-dir",
         "-i",
         default="downloads",
         help="Input directory containing Twitter export JSON files (default: downloads)",

@@ -71,7 +71,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "twitter-parse=twitter_parse_html_analysis.cli:main",
+            "twitter-parse=scripts.extract_tweets:main",
         ],
     },
     classifiers=[
