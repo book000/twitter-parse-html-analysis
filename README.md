@@ -47,7 +47,40 @@ pip install -r requirements.txt
 
 ## 使い方
 
-### 基本的な使い方
+### Dockerを使用した実行（推奨）
+
+Dockerを使用することで、環境構築不要で簡単に実行できます。
+
+```bash
+# リポジトリのクローンとディレクトリ作成
+git clone https://github.com/yourusername/twitter-parse-html-analysis.git
+cd twitter-parse-html-analysis
+mkdir -p data output reports
+
+# Twitterエクスポートファイルをdataディレクトリに配置
+cp /path/to/tweets-*.json data/
+
+# Dockerイメージのビルド
+docker-compose build
+
+# データ抽出の実行
+docker-compose run --rm twitter-parser \
+  python scripts/extract_tweets.py \
+  --input-dir /app/data \
+  --output-dir /app/output \
+  --reports-dir /app/reports
+
+# 動画無断使用分析も実行
+docker-compose run --rm twitter-parser \
+  python scripts/extract_tweets.py \
+  --input-dir /app/data \
+  --output-dir /app/output \
+  --analyze-misuse
+```
+
+詳細なDocker使用方法については [docker/README.md](docker/README.md) を参照してください。
+
+### 基本的な使い方（Python環境）
 
 ```python
 from src.parser import TwitterDataExtractor

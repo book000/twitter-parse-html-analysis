@@ -12,10 +12,16 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from parser import TwitterDataExtractor
-
-from analyzer import VideoMisuseAnalyzer
-from utils import format_time_duration
+try:
+    # Try Docker/package import first
+    from src.parser import TwitterDataExtractor
+    from src.analyzer import VideoMisuseAnalyzer
+    from src.utils import format_time_duration
+except ImportError:
+    # Fallback to direct imports
+    from parser import TwitterDataExtractor
+    from analyzer import VideoMisuseAnalyzer
+    from utils import format_time_duration
 
 
 def main():

@@ -1,0 +1,69 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.pytest_cache
+htmlcov
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+test_venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Output directories
+output/
+reports/
+parsed/
+results/
+example_output/
+example_reports/
+video_misuse_analysis/
+spam_analysis_results/
+japanese_spam_analysis/
+spam_analysis_external/
+
+# Data files (will be mounted)
+data/
+downloads/
+*.json
+*.csv
+*.xlsx
+*.tar.gz
+*.zip
+
+# Documentation build
+docs/_build/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak

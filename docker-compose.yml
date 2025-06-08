@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  twitter-parser:
+    build: .
+    container_name: twitter-html-parser
+    volumes:
+      # Mount your Twitter export JSON files here
+      - ./data:/app/data:ro
+      # Mount output directories
+      - ./output:/app/output
+      - ./reports:/app/reports
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    # Override default command for interactive use
+    # command: ["python", "scripts/extract_tweets.py", "--input-dir", "/app/data", "--output-dir", "/app/output"]
+    
+  # Development version with source code mounted for live editing
+  twitter-parser-dev:
+    build: .
+    container_name: twitter-html-parser-dev
+    volumes:
+      # Mount source code for development
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./examples:/app/examples
+      - ./tests:/app/tests
+      # Mount data directories
+      - ./data:/app/data:ro
+      - ./output:/app/output
+      - ./reports:/app/reports
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=DEBUG
+    # Keep container running for interactive use
+    tty: true
+    stdin_open: true
+    command: ["bash"]
+
+  # Testing service
+  twitter-parser-test:
+    build: 
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: twitter-html-parser-test
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "-m", "pytest", "tests/", "-v"]
