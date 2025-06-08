@@ -22,8 +22,8 @@ twitter-parse-html-analysisは、Twitter/XのエクスポートデータをHTML�
 ### コーディング規約
 - PEP 8に準拠
 - 型ヒントを積極的に使用
-- docstringは必須（Google Style）
-- 日本語コメントOK（ただしdocstringは英語）
+- docstringは必須（日本語で記述）
+- 日本語コメントを推奨
 
 ### テスト
 - 新機能には必ずユニットテストを追加
