@@ -14,6 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .utils import safe_json_load, sanitize_log_message
+
 
 class VideoMisuseAnalyzer:
     """
@@ -126,7 +128,7 @@ class VideoMisuseAnalyzer:
         for file_path in json_files:
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
-                    tweets = json.load(f)
+                    tweets = safe_json_load(f)
 
                 for tweet in tweets:
                     total_tweets += 1
@@ -141,7 +143,7 @@ class VideoMisuseAnalyzer:
                             self.video_misuse_data.append(tweet)
 
             except Exception as e:
-                self.logger.error(f"ファイル読み込みエラー {file_path.name}: {e}")
+                self.logger.error(f"ファイル読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}")
 
         self.logger.info(f"総ツイート数: {total_tweets:,}")
         self.logger.info(f"動画付きツイート数: {video_tweets:,}")

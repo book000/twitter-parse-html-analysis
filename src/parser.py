@@ -20,7 +20,16 @@ from typing import Any, Dict, List, Optional, Tuple
 from bs4 import BeautifulSoup
 
 from .language_detector import LanguageDetector
-from .utils import format_time_duration, safe_int_convert
+from .utils import (
+    format_time_duration, 
+    safe_int_convert, 
+    safe_json_load, 
+    safe_json_loads, 
+    sanitize_log_message,
+    safe_file_path,
+    sanitize_html_content,
+    validate_html_size
+)
 
 
 class TwitterDataExtractor:
@@ -159,7 +168,7 @@ class TwitterDataExtractor:
                         all_tweets_data.extend(file_data["tweets"])
 
             except Exception as e:
-                error_msg = f"ファイル処理エラー {file_path.name}: {e}"
+                error_msg = f"ファイル処理エラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
                 self.logger.error(error_msg)
                 error_reports.append(
                     {
@@ -186,7 +195,7 @@ class TwitterDataExtractor:
         """Process a single JSON file."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
+                data = safe_json_load(f)
 
             if "data" not in data or not isinstance(data["data"], list):
                 self.logger.warning(f"不正なファイル構造: {file_path.name}")
@@ -229,8 +238,12 @@ class TwitterDataExtractor:
 
             return {"tweets": extracted_tweets, "summary": file_summary}
 
+        except ValueError as e:
+            # Safe JSON loading errors
+            self.logger.error(f"JSON読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}")
+            return None
         except Exception as e:
-            self.logger.error(f"ファイル読み込みエラー {file_path.name}: {e}")
+            self.logger.error(f"ファイル読み込みエラー {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}")
             return None
 
     def _extract_comprehensive_tweet_data(
@@ -247,8 +260,17 @@ class TwitterDataExtractor:
         }
 
         try:
-            # Parse HTML content
+            # Parse HTML content with security validation
             html_content = tweet.get("elementHtml", "")
+            if html_content:
+                # Validate HTML size to prevent DoS
+                if not validate_html_size(html_content):
+                    data["extraction_errors"].append("HTML content too large, truncated")
+                    html_content = html_content[:100000]  # Truncate if too large
+                
+                # Sanitize HTML content to prevent XSS
+                html_content = sanitize_html_content(html_content)
+            
             soup = BeautifulSoup(html_content, "html.parser") if html_content else None
             tweet_text = tweet.get("tweetText", "")
 
@@ -426,22 +448,23 @@ class TwitterDataExtractor:
             data["script_analysis"] = language_info["script_analysis"]
             data["linguistic_features"] = language_info["linguistic_features"]
 
-            # Hashtag analysis
+            # Hashtag analysis - ReDoS-safe pattern
             hashtags = re.findall(
-                r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+", tweet_text
+                r"#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]{1,100}?(?=\s|$|[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF])", 
+                tweet_text[:5000]  # Limit input length
             )
             data["hashtag_count"] = len(hashtags)
             data["hashtags"] = "; ".join(hashtags)
             data["unique_hashtags"] = len(set(hashtags))
 
-            # Mention analysis
-            mentions = re.findall(r"@\w+", tweet_text)
+            # Mention analysis - ReDoS-safe pattern
+            mentions = re.findall(r"@\w{1,50}?(?=\s|$|[^\w])", tweet_text[:5000])
             data["mention_count"] = len(mentions)
             data["mentions"] = "; ".join(mentions)
             data["unique_mentions"] = len(set(mentions))
 
-            # URL analysis
-            urls = re.findall(r"https?://\S+", tweet_text)
+            # URL analysis - ReDoS-safe pattern
+            urls = re.findall(r"https?://[^\s]{1,500}?", tweet_text[:5000])
             data["url_count"] = len(urls)
             data["urls"] = "; ".join(urls)
 
@@ -660,14 +683,15 @@ class TwitterDataExtractor:
     def _parse_cslt_tweet_info_for_video(self, html_content: str) -> Optional[str]:
         """Parse cslt_tweet_info for video creator information."""
         try:
-            pattern = r'cslt_tweet_info="([^"]*)"'
-            match = re.search(pattern, html_content)
+            # ReDoS-safe pattern with length limit
+            pattern = r'cslt_tweet_info="([^"]{0,10000}?)"'
+            match = re.search(pattern, html_content[:50000])  # Limit input length
 
             if not match:
                 return None
 
             json_str = unescape(match.group(1))
-            tweet_info = json.loads(json_str)
+            tweet_info = safe_json_loads(json_str)
 
             video_info_list = tweet_info.get("tweet_video_info", [])
             for video_info in video_info_list:
@@ -1017,7 +1041,9 @@ class TwitterDataExtractor:
         """Output individual JSON file immediately."""
         try:
             output_filename = file_path.stem + "_extracted.json"
-            output_file = self.output_dir / output_filename
+            # Use safe file path to prevent directory traversal
+            safe_output_path = safe_file_path(str(self.output_dir), output_filename)
+            output_file = Path(safe_output_path)
 
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(tweets_data, f, ensure_ascii=False, indent=2)

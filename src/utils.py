@@ -6,8 +6,9 @@ This module provides common utility functions used throughout the
 Twitter parsing and analysis system.
 """
 
+import json
 import re
-from typing import Any, Union
+from typing import Any, Union, Dict, Optional
 
 
 def format_time_duration(seconds: float) -> str:
@@ -107,7 +108,7 @@ def clean_text(text: str) -> str:
 
 def extract_hashtags(text: str) -> list:
     """
-    Extract hashtags from text.
+    Extract hashtags from text with ReDoS protection.
 
     Args:
         text: Text to extract hashtags from
@@ -118,15 +119,15 @@ def extract_hashtags(text: str) -> list:
     if not text:
         return []
 
-    # Support Unicode characters in hashtags
-    pattern = r"#([\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+)"
-    matches = re.findall(pattern, text)
-    return matches
+    # ReDoS-safe pattern with length limit and possessive quantifiers
+    pattern = r"#([\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]{1,100}?)(?=\s|$|[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF])"
+    matches = re.findall(pattern, text[:10000])  # Limit input length
+    return matches[:50]  # Limit number of matches
 
 
 def extract_mentions(text: str) -> list:
     """
-    Extract mentions from text.
+    Extract mentions from text with ReDoS protection.
 
     Args:
         text: Text to extract mentions from
@@ -137,14 +138,15 @@ def extract_mentions(text: str) -> list:
     if not text:
         return []
 
-    pattern = r"@(\w+)"
-    matches = re.findall(pattern, text)
-    return matches
+    # ReDoS-safe pattern with length limit
+    pattern = r"@(\w{1,50}?)(?=\s|$|[^\w])"
+    matches = re.findall(pattern, text[:10000])  # Limit input length
+    return matches[:50]  # Limit number of matches
 
 
 def extract_urls(text: str) -> list:
     """
-    Extract URLs from text.
+    Extract URLs from text with ReDoS protection.
 
     Args:
         text: Text to extract URLs from
@@ -155,9 +157,10 @@ def extract_urls(text: str) -> list:
     if not text:
         return []
 
-    pattern = r"https?://\S+"
-    matches = re.findall(pattern, text)
-    return matches
+    # ReDoS-safe pattern with length limit
+    pattern = r"https?://[^\s]{1,500}?"
+    matches = re.findall(pattern, text[:10000])  # Limit input length
+    return matches[:20]  # Limit number of matches
 
 
 def calculate_text_stats(text: str) -> dict:
@@ -393,3 +396,284 @@ def validate_tweet_data(tweet_data: dict) -> dict:
         validation_results["warnings"].append("Tweet contains high Unicode characters")
 
     return validation_results
+
+
+# Security utility functions
+
+
+def safe_json_load(file_path: str, max_size_mb: int = 50) -> dict:
+    """
+    Safely load JSON file with size and content validation.
+
+    Args:
+        file_path: Path to JSON file
+        max_size_mb: Maximum file size in MB
+
+    Returns:
+        Parsed JSON data
+
+    Raises:
+        ValueError: If file is too large or contains invalid data
+        json.JSONDecodeError: If JSON parsing fails
+    """
+    import os
+    import json
+
+    # Check file size
+    file_size = os.path.getsize(file_path)
+    max_size_bytes = max_size_mb * 1024 * 1024
+
+    if file_size > max_size_bytes:
+        raise ValueError(f"File too large: {file_size} bytes (max: {max_size_bytes})")
+
+    # Load and validate JSON
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Basic structure validation
+    if not isinstance(data, (dict, list)):
+        raise ValueError("JSON must be object or array")
+
+    return data
+
+
+def safe_json_loads(json_str: str, max_length: int = 1024 * 1024) -> dict:
+    """
+    Safely parse JSON string with length validation.
+
+    Args:
+        json_str: JSON string to parse
+        max_length: Maximum string length
+
+    Returns:
+        Parsed JSON data
+
+    Raises:
+        ValueError: If string is too long or contains invalid data
+    """
+    import json
+
+    if len(json_str) > max_length:
+        raise ValueError(
+            f"JSON string too long: {len(json_str)} chars (max: {max_length})"
+        )
+
+    data = json.loads(json_str)
+
+    if not isinstance(data, (dict, list)):
+        raise ValueError("JSON must be object or array")
+
+    return data
+
+
+def sanitize_html_content(html: str, max_length: int = 500 * 1024) -> str:
+    """
+    Sanitize HTML content to prevent XSS attacks.
+
+    Args:
+        html: HTML content to sanitize
+        max_length: Maximum content length
+
+    Returns:
+        Sanitized HTML
+    """
+    if len(html) > max_length:
+        html = html[:max_length]
+
+    # Remove dangerous tags
+    dangerous_tags = ["script", "iframe", "object", "embed", "form", "meta", "link"]
+    for tag in dangerous_tags:
+        html = re.sub(f"<{tag}.*?</{tag}>", "", html, flags=re.IGNORECASE | re.DOTALL)
+        html = re.sub(f"<{tag}.*?>", "", html, flags=re.IGNORECASE)
+
+    # Remove dangerous attributes
+    dangerous_attrs = ["onclick", "onload", "onerror", "onmouseover", "onmouseout"]
+    for attr in dangerous_attrs:
+        html = re.sub(
+            f"{attr}\\s*=\\s*[\"'][^\"']*[\"']", "", html, flags=re.IGNORECASE
+        )
+
+    # Remove javascript: and vbscript: URLs
+    html = re.sub(r"(javascript|vbscript):", "blocked:", html, flags=re.IGNORECASE)
+
+    return html
+
+
+def safe_extract_hashtags(
+    text: str, max_text_length: int = 10000, max_hashtag_length: int = 100
+) -> list:
+    """
+    Safely extract hashtags with ReDoS protection.
+
+    Args:
+        text: Text to extract hashtags from
+        max_text_length: Maximum text length to process
+        max_hashtag_length: Maximum hashtag length
+
+    Returns:
+        List of hashtags without # symbol
+    """
+    if len(text) > max_text_length:
+        text = text[:max_text_length]
+
+    # Use non-backtracking pattern with length limit
+    pattern = (
+        r"#([a-zA-Z0-9_\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]{1,"
+        + str(max_hashtag_length)
+        + r"})"
+    )
+    matches = re.findall(pattern, text)
+
+    # Limit number of results
+    return matches[:50]
+
+
+def safe_extract_mentions(
+    text: str, max_text_length: int = 10000, max_mention_length: int = 50
+) -> list:
+    """
+    Safely extract mentions with ReDoS protection.
+
+    Args:
+        text: Text to extract mentions from
+        max_text_length: Maximum text length to process
+        max_mention_length: Maximum mention length
+
+    Returns:
+        List of mentions without @ symbol
+    """
+    if len(text) > max_text_length:
+        text = text[:max_text_length]
+
+    # Use non-backtracking pattern with length limit
+    pattern = r"@([a-zA-Z0-9_]{1," + str(max_mention_length) + r"})"
+    matches = re.findall(pattern, text)
+
+    # Limit number of results
+    return matches[:50]
+
+
+def safe_extract_urls(
+    text: str, max_text_length: int = 10000, max_url_length: int = 500
+) -> list:
+    """
+    Safely extract URLs with ReDoS protection.
+
+    Args:
+        text: Text to extract URLs from
+        max_text_length: Maximum text length to process
+        max_url_length: Maximum URL length
+
+    Returns:
+        List of URLs
+    """
+    if len(text) > max_text_length:
+        text = text[:max_text_length]
+
+    # Use non-backtracking pattern with length limit
+    pattern = r"https?://[^\s]{1," + str(max_url_length) + r"}"
+    matches = re.findall(pattern, text)
+
+    # Limit number of results and validate each URL
+    valid_urls = []
+    for url in matches[:20]:
+        if is_safe_url(url):
+            valid_urls.append(url)
+
+    return valid_urls
+
+
+def is_safe_url(url: str) -> bool:
+    """
+    Check if URL is safe (no malicious patterns).
+
+    Args:
+        url: URL to check
+
+    Returns:
+        True if URL appears safe
+    """
+    # Block javascript: and other dangerous schemes
+    dangerous_schemes = ["javascript:", "vbscript:", "data:", "file:"]
+    for scheme in dangerous_schemes:
+        if url.lower().startswith(scheme):
+            return False
+
+    # Block obvious malicious patterns
+    malicious_patterns = ["<script", "javascript:", "onload=", "onerror="]
+    for pattern in malicious_patterns:
+        if pattern.lower() in url.lower():
+            return False
+
+    return True
+
+
+def safe_file_path(file_path: str, base_dir: str) -> str:
+    """
+    Safely resolve file path to prevent directory traversal.
+
+    Args:
+        file_path: File path to resolve
+        base_dir: Base directory to constrain to
+
+    Returns:
+        Safe resolved path
+
+    Raises:
+        ValueError: If path tries to escape base directory
+    """
+    import os.path
+
+    # Detect obvious traversal attempts
+    if ".." in file_path or file_path.startswith("/"):
+        raise ValueError(f"Unsafe path detected: {file_path}")
+
+    # Normalize and resolve path
+    full_path = os.path.abspath(os.path.join(base_dir, file_path))
+    base_path = os.path.abspath(base_dir)
+
+    # Ensure resolved path is within base directory
+    if not full_path.startswith(base_path + os.sep):
+        raise ValueError(f"Path escapes base directory: {file_path}")
+
+    return full_path
+
+
+def sanitize_log_message(message: str, max_length: int = 1000) -> str:
+    """
+    Sanitize log message to prevent log injection.
+
+    Args:
+        message: Log message to sanitize
+        max_length: Maximum message length
+
+    Returns:
+        Sanitized log message
+    """
+    if len(message) > max_length:
+        message = message[:max_length] + "... (truncated)"
+
+    # Remove control characters that could break log format
+    message = re.sub(r"[\r\n\t\x00-\x1f\x7f-\x9f]", " ", message)
+
+    # Replace multiple spaces with single space
+    message = re.sub(r"\s+", " ", message)
+
+    return message.strip()
+
+
+def validate_html_size(html_content: str, max_size: int = 500000) -> bool:
+    """
+    Validate HTML content size to prevent DoS attacks.
+
+    Args:
+        html_content: HTML content to validate
+        max_size: Maximum allowed size in bytes
+
+    Returns:
+        True if size is acceptable, False otherwise
+    """
+    if not html_content:
+        return True
+
+    return len(html_content.encode("utf-8")) <= max_size
