@@ -1,0 +1,111 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+test_venv/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Logs
+*.log
+logs/
+
+# Data files
+*.json
+*.csv
+*.xlsx
+*.xls
+
+# Output directories
+parsed/
+reports/
+output/
+results/
+example_output/
+example_reports/
+video_misuse_analysis/
+spam_analysis_results/
+japanese_spam_analysis/
+spam_analysis_external/
+
+# Large data files
+downloads/
+*.tar.gz
+*.zip
+*.rar
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Credentials and secrets
+.env
+.env.local
+.env.*.local
+config/secrets.yml
+*.pem
+*.key
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+.~*
+
+# Documentation build
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Specific to this project
+twitter_data_extractor.log
+video_misuse_user_analyzer.log
+twitter_data_extractor_sample.log
+Unconfirmed*.crdownload
