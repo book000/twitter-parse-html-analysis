@@ -61,17 +61,17 @@ mkdir -p data output reports
 cp /path/to/tweets-*.json data/
 
 # Dockerイメージのビルド
-docker-compose build
+docker compose build
 
 # データ抽出の実行
-docker-compose run --rm twitter-parser \
+docker compose run --rm twitter-parser \
   python scripts/extract_tweets.py \
   --input-dir /app/data \
   --output-dir /app/output \
   --reports-dir /app/reports
 
 # 動画無断使用分析も実行
-docker-compose run --rm twitter-parser \
+docker compose run --rm twitter-parser \
   python scripts/extract_tweets.py \
   --input-dir /app/data \
   --output-dir /app/output \

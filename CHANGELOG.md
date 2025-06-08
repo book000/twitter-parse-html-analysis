@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User verification status detection (blue, gold, gray badges)
 - Engagement metrics analysis (likes, retweets, replies, quotes)
 - Real-time processing with progress tracking and ETA
-- Docker support with Dockerfile, docker-compose.yml, and comprehensive guide
+- Docker support with Dockerfile, compose.yaml, and comprehensive guide
 - Comprehensive test suite with unittest
 - CLI interface for batch processing
 - Sample data and usage examples

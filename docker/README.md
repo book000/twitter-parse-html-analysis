@@ -20,8 +20,8 @@ cp /path/to/tweets-*.json data/
 # イメージをビルド
 docker build -t twitter-html-parser .
 
-# または docker-compose を使用
-docker-compose build
+# または docker compose を使用
+docker compose build
 ```
 
 ### 3. 実行
@@ -35,8 +35,8 @@ docker run --rm \
   twitter-html-parser \
   python scripts/extract_tweets.py --input-dir /app/data --output-dir /app/output
 
-# docker-compose を使用
-docker-compose run --rm twitter-parser \
+# docker compose を使用
+docker compose run --rm twitter-parser \
   python scripts/extract_tweets.py --input-dir /app/data --output-dir /app/output
 ```
 
@@ -46,14 +46,14 @@ docker-compose run --rm twitter-parser \
 
 ```bash
 # 基本的なデータ抽出
-docker-compose run --rm twitter-parser \
+docker compose run --rm twitter-parser \
   python scripts/extract_tweets.py \
   --input-dir /app/data \
   --output-dir /app/output \
   --reports-dir /app/reports
 
 # 統合ファイル作成有効
-docker-compose run --rm twitter-parser \
+docker compose run --rm twitter-parser \
   python scripts/extract_tweets.py \
   --input-dir /app/data \
   --output-dir /app/output \
@@ -64,7 +64,7 @@ docker-compose run --rm twitter-parser \
 
 ```bash
 # 動画分析の実行
-docker-compose run --rm twitter-parser \
+docker compose run --rm twitter-parser \
   python examples/video_analysis.py
 ```
 
@@ -72,10 +72,10 @@ docker-compose run --rm twitter-parser \
 
 ```bash
 # テストコンテナでテスト実行
-docker-compose run --rm twitter-parser-test
+docker compose run --rm twitter-parser-test
 
 # または直接テスト実行
-docker-compose run --rm twitter-parser \
+docker compose run --rm twitter-parser \
   python -m pytest tests/ -v
 ```
 
@@ -83,7 +83,7 @@ docker-compose run --rm twitter-parser \
 
 ```bash
 # 開発モードで起動（ソースコードがマウントされる）
-docker-compose run --rm twitter-parser-dev
+docker compose run --rm twitter-parser-dev
 
 # コンテナ内でインタラクティブに作業
 root@container:/app# python scripts/extract_tweets.py --help
@@ -150,10 +150,10 @@ services:
 
 ```bash
 # コンテナのログを確認
-docker-compose logs twitter-parser
+docker compose logs twitter-parser
 
 # リアルタイムでログを表示
-docker-compose logs -f twitter-parser
+docker compose logs -f twitter-parser
 ```
 
 ## パフォーマンスチューニング
@@ -173,7 +173,7 @@ FROM python:3.10-alpine AS runtime
 
 ```bash
 # 複数コンテナでの並列処理
-docker-compose up --scale twitter-parser=3
+docker compose up --scale twitter-parser=3
 ```
 
 ## セキュリティ
