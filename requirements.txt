@@ -1,0 +1,14 @@
+# Twitter HTML Parser & Analysis Tool Requirements
+
+# Core dependencies
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Progress bar and logging
+tqdm>=4.65.0
+
+# CLI interface
+click>=8.1.0
+
+# Type hints support (for Python < 3.8)
+typing_extensions>=4.5.0
