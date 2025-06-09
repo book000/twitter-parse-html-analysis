@@ -1047,7 +1047,7 @@ class TwitterDataExtractor:
         try:
             output_filename = file_path.stem + "_extracted.json"
             # Use safe file path to prevent directory traversal
-            safe_output_path = safe_file_path(str(self.output_dir), output_filename)
+            safe_output_path = safe_file_path(output_filename, str(self.output_dir))
             output_file = Path(safe_output_path)
 
             with open(output_file, "w", encoding="utf-8") as f:
