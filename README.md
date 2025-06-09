@@ -34,7 +34,7 @@ TwitterのデータエクスポートからダウンロードしたJSONファイ
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/yourusername/twitter-parse-html-analysis.git
+git clone https://github.com/book000/twitter-parse-html-analysis.git
 cd twitter-parse-html-analysis
 
 # 仮想環境の作成（推奨）
@@ -53,7 +53,7 @@ Dockerを使用することで、環境構築不要で簡単に実行できま�
 
 ```bash
 # リポジトリのクローンとディレクトリ作成
-git clone https://github.com/yourusername/twitter-parse-html-analysis.git
+git clone https://github.com/book000/twitter-parse-html-analysis.git
 cd twitter-parse-html-analysis
 mkdir -p data output reports
 
