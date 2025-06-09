@@ -120,7 +120,7 @@ results = analyzer.analyze_all()
 python scripts/extract_tweets.py --input downloads --output parsed
 
 # 動画分析付き
-python scripts/extract_tweets.py --input downloads --output parsed --analyze-videos
+python scripts/extract_tweets.py --input downloads --output parsed --analyze-misuse
 
 # 統合ファイル作成なし（個別ファイルのみ）
 python scripts/extract_tweets.py --input downloads --output parsed --no-consolidated
