@@ -115,7 +115,9 @@ jobs:
 
   build:
     name: Build Package
-    needs: [quality, test]
+    needs:
+      - quality
+      - test
     runs-on: ubuntu-latest
     
     steps:
@@ -140,3 +142,33 @@ jobs:
       with:
         name: dist
         path: dist/
+
+  finished-build:
+    name: Check finished Python CI
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - quality
+      - test
+      - build
+    permissions:
+      actions: read
+
+    steps:
+      - name: Check build failure
+        run: |
+          echo "Quality status: ${{ needs.quality.result }}"
+          echo "Test status: ${{ needs.test.result }}"
+          echo "Build status: ${{ needs.build.result }}"
+          if [ "${{ needs.quality.result }}" != "success" ]; then
+            echo "Quality checks failed"
+            exit 1
+          fi
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "Tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "Build failed"
+            exit 1
+          fi
