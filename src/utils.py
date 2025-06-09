@@ -157,10 +157,12 @@ def extract_urls(text: str) -> list:
     if not text:
         return []
 
-    # ReDoS-safe pattern with length limit
-    pattern = r"https?://[^\s]{1,500}?"
+    # ReDoS-safe pattern with length limit  
+    pattern = r"https?://[^\s]+"
     matches = re.findall(pattern, text[:10000])  # Limit input length
-    return matches[:20]  # Limit number of matches
+    # Filter out extremely long URLs to prevent DoS
+    filtered_matches = [match for match in matches if len(match) <= 500]
+    return filtered_matches[:20]  # Limit number of matches
 
 
 def calculate_text_stats(text: str) -> dict:

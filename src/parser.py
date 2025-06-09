@@ -194,8 +194,7 @@ class TwitterDataExtractor:
     def _process_single_file(self, file_path: Path) -> Optional[Dict[str, Any]]:
         """Process a single JSON file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = safe_json_load(f)
+            data = safe_json_load(str(file_path))
 
             if "data" not in data or not isinstance(data["data"], list):
                 self.logger.warning(f"不正なファイル構造: {file_path.name}")
