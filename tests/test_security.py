@@ -3,21 +3,16 @@
 Security-focused tests for utility functions.
 """
 
-import pytest
 import json
-import tempfile
 import os
-from src.utils import (
-    safe_json_load,
-    safe_json_loads,
-    sanitize_html_content,
-    safe_extract_hashtags,
-    safe_extract_mentions,
-    safe_extract_urls,
-    is_safe_url,
-    safe_file_path,
-    sanitize_log_message,
-)
+import tempfile
+
+import pytest
+
+from src.utils import (is_safe_url, safe_extract_hashtags,
+                       safe_extract_mentions, safe_extract_urls,
+                       safe_file_path, safe_json_load, safe_json_loads,
+                       sanitize_html_content, sanitize_log_message)
 
 
 class TestJSONSecurity:

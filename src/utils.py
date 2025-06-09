@@ -8,7 +8,7 @@ Twitter parsing and analysis system.
 
 import json
 import re
-from typing import Any, Union, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 
 def format_time_duration(seconds: float) -> str:
@@ -416,8 +416,8 @@ def safe_json_load(file_path: str, max_size_mb: int = 50) -> dict:
         ValueError: If file is too large or contains invalid data
         json.JSONDecodeError: If JSON parsing fails
     """
-    import os
     import json
+    import os
 
     # Check file size
     file_size = os.path.getsize(file_path)

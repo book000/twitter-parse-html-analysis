@@ -4,21 +4,13 @@ Test module for utility functions.
 """
 
 import pytest
-from src.utils import (
-    format_time_duration,
-    extract_domain_from_url,
-    clean_text,
-    normalize_username,
-    extract_hashtags,
-    extract_mentions,
-    extract_urls,
-    safe_int_convert,
-    safe_float_convert,
-    format_large_number,
-    calculate_text_stats,
-    is_likely_spam,
-    calculate_engagement_rate,
-)
+
+from src.utils import (calculate_engagement_rate, calculate_text_stats,
+                       clean_text, extract_domain_from_url, extract_hashtags,
+                       extract_mentions, extract_urls, format_large_number,
+                       format_time_duration, is_likely_spam,
+                       normalize_username, safe_float_convert,
+                       safe_int_convert)
 
 
 class TestTimeUtils:

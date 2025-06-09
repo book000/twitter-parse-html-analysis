@@ -14,12 +14,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
     # Try Docker/package import first
-    from src.parser import TwitterDataExtractor
     from src.analyzer import VideoMisuseAnalyzer
+    from src.parser import TwitterDataExtractor
     from src.utils import format_time_duration
 except ImportError:
     # Fallback to direct imports
     from parser import TwitterDataExtractor
+
     from analyzer import VideoMisuseAnalyzer
     from utils import format_time_duration
 

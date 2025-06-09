@@ -20,16 +20,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from bs4 import BeautifulSoup
 
 from .language_detector import LanguageDetector
-from .utils import (
-    format_time_duration,
-    safe_int_convert,
-    safe_json_load,
-    safe_json_loads,
-    sanitize_log_message,
-    safe_file_path,
-    sanitize_html_content,
-    validate_html_size,
-)
+from .utils import (format_time_duration, safe_file_path, safe_int_convert,
+                    safe_json_load, safe_json_loads, sanitize_html_content,
+                    sanitize_log_message, validate_html_size)
 
 
 class TwitterDataExtractor:
