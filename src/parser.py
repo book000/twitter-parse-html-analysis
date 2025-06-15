@@ -344,36 +344,36 @@ class TwitterDataExtractor:
 
             data["screen_name"] = screen_name
             
-            # User ID extraction
+            # User ID extraction (limited in Twitter export data)
             user_id = ""
-            # Try to extract from profile image URL pattern
+            
+            # Method 1: Try to extract from profile image URL pattern (these are often different from user IDs)
             if soup:
                 profile_imgs = soup.find_all("img", src=re.compile(r"profile_images"))
                 for img in profile_imgs:
                     src = img.get("src", "")
-                    # Profile image URLs often contain user ID: /profile_images/{user_id}/
+                    # Note: Profile image IDs are not actual user IDs, but can serve as identifiers
                     match = re.search(r"profile_images/(\d+)/", src)
                     if match:
-                        user_id = match.group(1)
+                        user_id = f"profile_{match.group(1)}"  # Prefix to clarify it's not a real user ID
                         break
             
-            # Alternative: extract from URL structure if available
+            # Method 2: Look for data attributes that might contain user information
             if not user_id and soup:
-                links = soup.find_all("a", href=re.compile(r"^/[^/]+$"))
-                for link in links:
-                    href = link.get("href", "")
-                    if href.startswith("/") and not href.startswith("//"):
-                        username = href[1:]  # Remove leading slash
-                        if username == screen_name:
-                            # Try to find user ID in nearby elements or data attributes
-                            parent = link.find_parent()
-                            if parent:
-                                for attr in ["data-user-id", "data-id"]:
-                                    if parent.get(attr):
-                                        user_id = parent.get(attr)
-                                        break
-                            if user_id:
+                # Search for any data attributes with user information
+                elements_with_data = soup.find_all(attrs=lambda x: x and any(k.startswith('data-') for k in x.keys()))
+                for elem in elements_with_data:
+                    for attr_name, attr_value in elem.attrs.items():
+                        if attr_name.startswith('data-') and ('user' in attr_name.lower() or 'id' in attr_name.lower()):
+                            if isinstance(attr_value, str) and attr_value.isdigit():
+                                user_id = f"data_{attr_value}"
                                 break
+                    if user_id:
+                        break
+            
+            # Method 3: Use screen_name as fallback identifier
+            if not user_id and screen_name:
+                user_id = f"screen_{screen_name}"
             
             data["user_id"] = user_id
 
