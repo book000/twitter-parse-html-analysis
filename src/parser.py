@@ -367,6 +367,8 @@ class TwitterDataExtractor:
                     "No user_id found in HTML - "
                     "no follow/unfollow/block/unblock buttons detected"
                 )
+                if "extraction_errors" not in data:
+                    data["extraction_errors"] = []
                 data["extraction_errors"].append(error_msg)
 
             data["user_id"] = user_id
@@ -413,6 +415,8 @@ class TwitterDataExtractor:
             data["estimated_followers"] = 0  # Could be enhanced
 
         except Exception as e:
+            if "extraction_errors" not in data:
+                data["extraction_errors"] = []
             data["extraction_errors"].append(f"User info error: {e}")
 
     def _extract_verification_status(self, soup: BeautifulSoup, data: Dict) -> None:
