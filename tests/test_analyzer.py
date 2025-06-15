@@ -97,9 +97,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
                 user_profiles_csv = csv_file
                 break
 
-        self.assertIsNotNone(
-            user_profiles_csv, "User profiles CSV file not found"
-        )
+        self.assertIsNotNone(user_profiles_csv, "User profiles CSV file not found")
 
         # Read CSV and check user_id column exists and is in correct position
         with open(user_profiles_csv, "r", encoding="utf-8") as f:
@@ -107,9 +105,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
             headers = next(reader)
 
             # Check that user_id column exists
-            self.assertIn(
-                "user_id", headers, "user_id column not found in CSV headers"
-            )
+            self.assertIn("user_id", headers, "user_id column not found in CSV headers")
 
             # Check expected position of user_id (should be early in the headers)
             user_id_index = headers.index("user_id")
