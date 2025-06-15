@@ -203,8 +203,8 @@ class TestTwitterDataExtractor(unittest.TestCase):
         
         self.assertEqual(data["user_id"], "987654321")
         
-    def test_user_id_extraction_fallback(self):
-        """Test user_id extraction fallback to screen_name."""
+    def test_user_id_extraction_unblock_button(self):
+        """Test user_id extraction from unblock button data-testid."""
         extractor = TwitterDataExtractor(
             input_dir=str(self.input_dir),
             output_dir=str(self.output_dir),
@@ -213,10 +213,10 @@ class TestTwitterDataExtractor(unittest.TestCase):
         
         from bs4 import BeautifulSoup
         
-        # No user button or profile image pattern
+        # Test unblock button pattern
         html = """
         <div>
-            <span>No user ID patterns here</span>
+            <button data-testid="555666777-unblock">Unblock</button>
         </div>
         """
         soup = BeautifulSoup(html, "html.parser")
@@ -226,7 +226,36 @@ class TestTwitterDataExtractor(unittest.TestCase):
         
         extractor._extract_user_information(soup, tweet, data)
         
-        self.assertEqual(data["user_id"], "screen_testuser")
+        self.assertEqual(data["user_id"], "555666777")
+        
+    def test_user_id_extraction_no_buttons(self):
+        """Test user_id extraction when no action buttons are present (should be empty)."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        
+        from bs4 import BeautifulSoup
+        
+        # No user button patterns
+        html = """
+        <div>
+            <span>No user ID patterns here</span>
+            <img src="https://pbs.twimg.com/profile_images/123456789/test.jpg" alt="Profile" />
+        </div>
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        
+        data = {"extraction_errors": []}
+        tweet = {"screenName": "testuser"}
+        
+        extractor._extract_user_information(soup, tweet, data)
+        
+        # Should be empty string when no buttons found
+        self.assertEqual(data["user_id"], "")
+        # Should have error message
+        self.assertIn("No user_id found in HTML", data["extraction_errors"][0])
 
     def test_language_detection_integration(self):
         """Test language detection integration."""

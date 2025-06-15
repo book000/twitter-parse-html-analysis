@@ -347,47 +347,20 @@ class TwitterDataExtractor:
             # User ID extraction from Twitter export data
             user_id = ""
             
-            # Method 1: Extract from follow/unfollow/block button data-testid (most reliable)
+            # Extract from user action buttons data-testid (based on {user_id}-(follow|unfollow|block|unblock) pattern)
             if soup:
-                # Look for user buttons with pattern "{user_id}-(follow|unfollow|block)"
-                user_buttons = soup.find_all(attrs={"data-testid": re.compile(r"^\d+-(follow|unfollow|block)$")})
+                # Look for user buttons with pattern "{user_id}-(follow|unfollow|block|unblock)"
+                user_buttons = soup.find_all(attrs={"data-testid": re.compile(r"^\d+-(follow|unfollow|block|unblock)$")})
                 for button in user_buttons:
                     testid = button.get("data-testid", "")
-                    match = re.search(r"^(\d+)-(follow|unfollow|block)$", testid)
+                    match = re.search(r"^(\d+)-(follow|unfollow|block|unblock)$", testid)
                     if match:
                         user_id = match.group(1)
                         break
             
-            # Method 2: Extract from profile image URL pattern (fallback)
-            if not user_id and soup:
-                profile_imgs = soup.find_all("img", src=re.compile(r"profile_images"))
-                for img in profile_imgs:
-                    src = img.get("src", "")
-                    # Note: Profile image IDs may not be actual user IDs
-                    match = re.search(r"profile_images/(\d+)/", src)
-                    if match:
-                        user_id = f"profile_{match.group(1)}"
-                        break
-            
-            # Method 3: Look for other data attributes that might contain user information
-            if not user_id and soup:
-                elements_with_data = soup.find_all(attrs=lambda x: x and any(k.startswith('data-') for k in x.keys()))
-                for elem in elements_with_data:
-                    for attr_name, attr_value in elem.attrs.items():
-                        if attr_name.startswith('data-') and ('user' in attr_name.lower() or 'id' in attr_name.lower()):
-                            if isinstance(attr_value, str) and attr_value.isdigit():
-                                user_id = f"data_{attr_value}"
-                                break
-                    if user_id:
-                        break
-            
-            # Method 4: Use screen_name as final fallback
-            if not user_id and screen_name:
-                user_id = f"screen_{screen_name}"
-            
-            # Log warning if no user_id could be extracted for debugging
+            # If no user_id found from buttons, set to empty string (null equivalent)
             if not user_id:
-                data["extraction_errors"].append("No user_id found in HTML - check data-testid patterns or profile image URLs")
+                data["extraction_errors"].append("No user_id found in HTML - no follow/unfollow/block/unblock buttons detected")
             
             data["user_id"] = user_id
 
