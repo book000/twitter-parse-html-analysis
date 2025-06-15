@@ -102,7 +102,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
             # Check if user_id column exists (optional for some CSV types)
             if "user_id" in headers:
                 user_id_index = headers.index("user_id")
-                
+
                 # Read data rows and verify user_id values if column exists
                 rows = list(reader)
                 if rows:  # Only check if there are data rows
