@@ -25,7 +25,7 @@ class VideoMisuseAnalyzer:
 
     def __init__(
         self,
-        input_dir: str = "parsed",
+        input_dir: str = "output",
         output_dir: str = "video_misuse_analysis",
         log_level: int = logging.INFO,
     ):
@@ -52,6 +52,7 @@ class VideoMisuseAnalyzer:
             lambda: {
                 "screen_name": "",
                 "display_name": "",
+                "user_id": "",
                 "violations": [],
                 "total_violations": 0,
                 "total_engagement": 0,
@@ -169,6 +170,7 @@ class VideoMisuseAnalyzer:
             # Basic profile info
             profile["screen_name"] = screen_name
             profile["display_name"] = tweet.get("display_name", "")
+            profile["user_id"] = tweet.get("user_id", "")
 
             # Violation details
             violation = {
@@ -304,6 +306,7 @@ class VideoMisuseAnalyzer:
             fieldnames = [
                 "screen_name",
                 "display_name",
+                "user_id",
                 "violation_count",
                 "total_engagement",
                 "avg_engagement",
@@ -327,6 +330,7 @@ class VideoMisuseAnalyzer:
                     row = {
                         "screen_name": profile["screen_name"],
                         "display_name": profile["display_name"],
+                        "user_id": profile["user_id"],
                         "violation_count": profile["total_violations"],
                         "total_engagement": profile["total_engagement"],
                         "avg_engagement": round(profile["avg_engagement"], 1),
@@ -354,6 +358,7 @@ class VideoMisuseAnalyzer:
             fieldnames = [
                 "screen_name",
                 "display_name",
+                "user_id",
                 "tweet_id",
                 "video_creator",
                 "detection_method",
@@ -373,6 +378,7 @@ class VideoMisuseAnalyzer:
                     row = {
                         "screen_name": profile["screen_name"],
                         "display_name": profile["display_name"],
+                        "user_id": profile["user_id"],
                         "tweet_id": violation["tweet_id"],
                         "video_creator": violation["video_creator"],
                         "detection_method": violation["detection_method"],
@@ -408,6 +414,7 @@ class VideoMisuseAnalyzer:
                 user_data = {
                     "screen_name": profile["screen_name"],
                     "display_name": profile["display_name"],
+                    "user_id": profile["user_id"],
                     "violation_count": profile["total_violations"],
                     "total_engagement": profile["total_engagement"],
                     "avg_engagement": round(profile["avg_engagement"], 1),

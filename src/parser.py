@@ -344,6 +344,35 @@ class TwitterDataExtractor:
 
             data["screen_name"] = screen_name
 
+            # User ID extraction from Twitter export data
+            user_id = ""
+
+            # Extract from user action buttons data-testid
+            # Pattern: {user_id}-(follow|unfollow|block|unblock)
+            if soup:
+                # Look for user buttons with the ID pattern
+                find_pattern = re.compile(r"^\d+-(follow|unfollow|block|unblock)$")
+                user_buttons = soup.find_all(attrs={"data-testid": find_pattern})
+                for button in user_buttons:
+                    testid = button.get("data-testid", "")
+                    match_pattern = r"^(\d+)-(follow|unfollow|block|unblock)$"
+                    match = re.search(match_pattern, testid)
+                    if match:
+                        user_id = match.group(1)
+                        break
+
+            # If no user_id found from buttons, set to empty string (null equivalent)
+            if not user_id:
+                error_msg = (
+                    "No user_id found in HTML - "
+                    "no follow/unfollow/block/unblock buttons detected"
+                )
+                if "extraction_errors" not in data:
+                    data["extraction_errors"] = []
+                data["extraction_errors"].append(error_msg)
+
+            data["user_id"] = user_id
+
             # Display name
             display_name = ""
             if soup:
@@ -386,6 +415,8 @@ class TwitterDataExtractor:
             data["estimated_followers"] = 0  # Could be enhanced
 
         except Exception as e:
+            if "extraction_errors" not in data:
+                data["extraction_errors"] = []
             data["extraction_errors"].append(f"User info error: {e}")
 
     def _extract_verification_status(self, soup: BeautifulSoup, data: Dict) -> None:

@@ -109,3 +109,7 @@ twitter_data_extractor.log
 video_misuse_user_analyzer.log
 twitter_data_extractor_sample.log
 Unconfirmed*.crdownload
+
+# Test files
+test_modifications.py
+test_single_file.py

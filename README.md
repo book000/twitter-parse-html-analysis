@@ -212,6 +212,33 @@ twitter-parse-html-analysis/
 - 大量のファイル処理には時間がかかります（1000ファイルで約10-20分）
 - 動画無断使用の検出は100%正確ではありません。誤検出の可能性があります
 
+## 重要な変更履歴
+
+### バージョン 1.1.0以降（破壊的変更）
+
+**VideoMisuseAnalyzerのデフォルト入力ディレクトリが変更されました**
+
+- **変更前**: `input_dir="parsed"`
+- **変更後**: `input_dir="output"`
+
+この変更により、実際のディレクトリ構造と一致するようになりました。既存のコードでカスタムの入力ディレクトリを指定していない場合は、以下のいずれかの対応を行ってください：
+
+1. **推奨**: コードを更新して新しいデフォルト動作を使用
+```python
+# 新しいデフォルト（明示的に指定する場合）
+analyzer = VideoMisuseAnalyzer(input_dir="output")
+```
+
+2. **従来の動作を維持**: 明示的に従来のディレクトリを指定
+```python
+# 従来の動作を維持する場合
+analyzer = VideoMisuseAnalyzer(input_dir="parsed")
+```
+
+**追加の改善点**:
+- 全ての出力CSVとJSONファイルに`user_id`フィールドが追加されました
+- ユーザーID抽出がより堅牢になり、follow/unfollow/blockボタンのパターンに対応
+
 ## ライセンス
 
 MIT License - 詳細は[LICENSE](LICENSE)ファイルを参照してください
