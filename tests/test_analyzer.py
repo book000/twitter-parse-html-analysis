@@ -164,7 +164,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         # Check that output files were created (CSV files may vary based on actual data)
         output_files = list(self.output_dir.glob("*"))
         self.assertGreater(len(output_files), 0, "No output files created")
-        
+
         # If violation files exist, check their structure
         violation_files = list(self.output_dir.glob("*violation*"))
         if violation_files:
