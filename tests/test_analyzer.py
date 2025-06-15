@@ -69,10 +69,9 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
     def test_init_custom_input_dir(self):
         """Test VideoMisuseAnalyzer initialization with custom input_dir."""
         analyzer = VideoMisuseAnalyzer(
-            input_dir=str(self.input_dir),
-            output_dir=str(self.output_dir)
+            input_dir=str(self.input_dir), output_dir=str(self.output_dir)
         )
-        
+
         self.assertEqual(analyzer.input_dir, self.input_dir)
         self.assertEqual(analyzer.output_dir, self.output_dir)
         self.assertIsNotNone(analyzer.logger)
@@ -82,14 +81,14 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         analyzer = VideoMisuseAnalyzer(
             input_dir=str(self.input_dir), output_dir=str(self.output_dir)
         )
-        
+
         with patch.object(analyzer, "logger", MagicMock()):
             results = analyzer.analyze_all()
-        
+
         # Check that CSV files were created
         csv_files = list(self.output_dir.glob("*.csv"))
         self.assertGreater(len(csv_files), 0)
-        
+
         # Find the user profiles CSV file
         user_profiles_csv = None
         for csv_file in csv_files:
@@ -103,7 +102,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         self.assertIsNotNone(
             user_profiles_csv, "User profiles CSV file not found"
         )
-        
+
         # Read CSV and check user_id column exists and is in correct position
         with open(user_profiles_csv, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
@@ -121,7 +120,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
                 5,
                 "user_id column should be in the first few columns",
             )
-            
+
             # Read data rows and verify user_id values
             rows = list(reader)
             self.assertGreater(len(rows), 0, "No data rows found in CSV")
@@ -138,14 +137,14 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         analyzer = VideoMisuseAnalyzer(
             input_dir=str(self.input_dir), output_dir=str(self.output_dir)
         )
-        
+
         with patch.object(analyzer, "logger", MagicMock()):
             results = analyzer.analyze_all()
-        
+
         # Check that JSON files were created
         json_files = list(self.output_dir.glob("*.json"))
         self.assertGreater(len(json_files), 0)
-        
+
         # Find and check a JSON file
         for json_file in json_files:
             with open(json_file, "r", encoding="utf-8") as f:
@@ -171,10 +170,10 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         analyzer = VideoMisuseAnalyzer(
             input_dir=str(self.input_dir), output_dir=str(self.output_dir)
         )
-        
+
         with patch.object(analyzer, "logger", MagicMock()):
             results = analyzer.analyze_all()
-        
+
         # Check that video misuse was detected
         self.assertGreater(
             results.get("video_misuse_cases", 0), 0, "No video misuse cases detected"
@@ -230,10 +229,10 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         analyzer = VideoMisuseAnalyzer(
             input_dir=str(self.input_dir), output_dir=str(self.output_dir)
         )
-        
+
         with patch.object(analyzer, "logger", MagicMock()):
             results = analyzer.analyze_all()
-        
+
         # Verify that analysis completed successfully
         self.assertIsNotNone(results)
 
@@ -242,7 +241,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         analyzer = VideoMisuseAnalyzer(
             input_dir=str(self.input_dir), output_dir=str(self.output_dir)
         )
-        
+
         # Check the expected fieldnames defined in the analyzer
         expected_fields = [
             "screen_name",
