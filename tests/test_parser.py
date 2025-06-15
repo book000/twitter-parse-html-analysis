@@ -124,6 +124,109 @@ class TestTwitterDataExtractor(unittest.TestCase):
 
         self.assertEqual(data["screen_name"], "testuser")
         self.assertIn("profile_images", data["profile_image_url"])
+        # Check that user_id field is present (may be empty for this simple test)
+        self.assertIn("user_id", data)
+
+    def test_user_id_extraction_follow_button(self):
+        """Test user_id extraction from follow button data-testid."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        
+        from bs4 import BeautifulSoup
+        
+        # Test follow button pattern
+        html = """
+        <div>
+            <button data-testid="405595755-follow">Follow</button>
+            <img src="https://pbs.twimg.com/profile_images/123/test.jpg" alt="Profile" />
+        </div>
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        
+        data = {"extraction_errors": []}
+        tweet = {"screenName": "testuser"}
+        
+        extractor._extract_user_information(soup, tweet, data)
+        
+        self.assertEqual(data["user_id"], "405595755")
+        
+    def test_user_id_extraction_unfollow_button(self):
+        """Test user_id extraction from unfollow button data-testid."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        
+        from bs4 import BeautifulSoup
+        
+        # Test unfollow button pattern
+        html = """
+        <div>
+            <button data-testid="123456789-unfollow">Unfollow</button>
+        </div>
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        
+        data = {"extraction_errors": []}
+        tweet = {"screenName": "testuser"}
+        
+        extractor._extract_user_information(soup, tweet, data)
+        
+        self.assertEqual(data["user_id"], "123456789")
+        
+    def test_user_id_extraction_block_button(self):
+        """Test user_id extraction from block button data-testid."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        
+        from bs4 import BeautifulSoup
+        
+        # Test block button pattern
+        html = """
+        <div>
+            <button data-testid="987654321-block">Block</button>
+        </div>
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        
+        data = {"extraction_errors": []}
+        tweet = {"screenName": "testuser"}
+        
+        extractor._extract_user_information(soup, tweet, data)
+        
+        self.assertEqual(data["user_id"], "987654321")
+        
+    def test_user_id_extraction_fallback(self):
+        """Test user_id extraction fallback to screen_name."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        
+        from bs4 import BeautifulSoup
+        
+        # No user button or profile image pattern
+        html = """
+        <div>
+            <span>No user ID patterns here</span>
+        </div>
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        
+        data = {"extraction_errors": []}
+        tweet = {"screenName": "testuser"}
+        
+        extractor._extract_user_information(soup, tweet, data)
+        
+        self.assertEqual(data["user_id"], "screen_testuser")
 
     def test_language_detection_integration(self):
         """Test language detection integration."""

@@ -385,6 +385,10 @@ class TwitterDataExtractor:
             if not user_id and screen_name:
                 user_id = f"screen_{screen_name}"
             
+            # Log warning if no user_id could be extracted for debugging
+            if not user_id:
+                data["extraction_errors"].append("No user_id found in HTML - check data-testid patterns or profile image URLs")
+            
             data["user_id"] = user_id
 
             # Display name
