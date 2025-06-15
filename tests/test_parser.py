@@ -141,7 +141,7 @@ class TestTwitterDataExtractor(unittest.TestCase):
         html = """
         <div>
             <button data-testid="405595755-follow">Follow</button>
-            <img src="https://pbs.twimg.com/profile_images/123/test.jpg" alt="Profile" />
+            <img src="https://pbs.twimg.com/profile_images/123/test.jpg" />
         </div>
         """
         soup = BeautifulSoup(html, "html.parser")
@@ -242,7 +242,7 @@ class TestTwitterDataExtractor(unittest.TestCase):
         html = """
         <div>
             <span>No user ID patterns here</span>
-            <img src="https://pbs.twimg.com/profile_images/123456789/test.jpg" alt="Profile" />
+            <img src="https://pbs.twimg.com/profile_images/123456789/test.jpg" />
         </div>
         """
         soup = BeautifulSoup(html, "html.parser")

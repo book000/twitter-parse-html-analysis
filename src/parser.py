@@ -347,24 +347,27 @@ class TwitterDataExtractor:
             # User ID extraction from Twitter export data
             user_id = ""
 
-            # Extract from user action buttons data-testid (based on {user_id}-(follow|unfollow|block|unblock) pattern)
+            # Extract from user action buttons data-testid
+            # Pattern: {user_id}-(follow|unfollow|block|unblock)
             if soup:
-                # Look for user buttons with pattern "{user_id}-(follow|unfollow|block|unblock)"
-                user_buttons = soup.find_all(
-                    attrs={"data-testid": re.compile(r"^\d+-(follow|unfollow|block|unblock)$")}
-                )
+                # Look for user buttons with the ID pattern
+                find_pattern = re.compile(r"^\d+-(follow|unfollow|block|unblock)$")
+                user_buttons = soup.find_all(attrs={"data-testid": find_pattern})
                 for button in user_buttons:
                     testid = button.get("data-testid", "")
-                    match = re.search(r"^(\d+)-(follow|unfollow|block|unblock)$", testid)
+                    match_pattern = r"^(\d+)-(follow|unfollow|block|unblock)$"
+                    match = re.search(match_pattern, testid)
                     if match:
                         user_id = match.group(1)
                         break
 
             # If no user_id found from buttons, set to empty string (null equivalent)
             if not user_id:
-                data["extraction_errors"].append(
-                    "No user_id found in HTML - no follow/unfollow/block/unblock buttons detected"
+                error_msg = (
+                    "No user_id found in HTML - "
+                    "no follow/unfollow/block/unblock buttons detected"
                 )
+                data["extraction_errors"].append(error_msg)
 
             data["user_id"] = user_id
 

@@ -92,10 +92,8 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         # Find the user profiles CSV file
         user_profiles_csv = None
         for csv_file in csv_files:
-            if (
-                "user" in csv_file.name.lower()
-                and "profile" in csv_file.name.lower()
-            ):
+            name_lower = csv_file.name.lower()
+            if "user" in name_lower and "profile" in name_lower:
                 user_profiles_csv = csv_file
                 break
 
@@ -116,9 +114,7 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
             # Check expected position of user_id (should be early in the headers)
             user_id_index = headers.index("user_id")
             self.assertLess(
-                user_id_index,
-                5,
-                "user_id column should be in the first few columns",
+                user_id_index, 5, "user_id column should be in the first few columns"
             )
 
             # Read data rows and verify user_id values
@@ -175,9 +171,8 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
             results = analyzer.analyze_all()
 
         # Check that video misuse was detected
-        self.assertGreater(
-            results.get("video_misuse_cases", 0), 0, "No video misuse cases detected"
-        )
+        video_misuse_cases = results.get("video_misuse_cases", 0)
+        self.assertGreater(video_misuse_cases, 0, "No video misuse cases detected")
 
         # Check that violation details CSV was created
         violation_files = list(self.output_dir.glob("*violation*"))
@@ -272,11 +267,8 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
 
                 # user_id should come after screen_name if both exist
                 if screen_name_pos >= 0:
-                    self.assertGreater(
-                        user_id_pos,
-                        screen_name_pos,
-                        "user_id should come after screen_name in CSV headers",
-                    )
+                    msg = "user_id should come after screen_name in CSV headers"
+                    self.assertGreater(user_id_pos, screen_name_pos, msg)
 
 
 if __name__ == "__main__":
