@@ -344,23 +344,33 @@ class TwitterDataExtractor:
 
             data["screen_name"] = screen_name
             
-            # User ID extraction (limited in Twitter export data)
+            # User ID extraction from Twitter export data
             user_id = ""
             
-            # Method 1: Try to extract from profile image URL pattern (these are often different from user IDs)
+            # Method 1: Extract from follow/unfollow/block button data-testid (most reliable)
             if soup:
+                # Look for user buttons with pattern "{user_id}-(follow|unfollow|block)"
+                user_buttons = soup.find_all(attrs={"data-testid": re.compile(r"^\d+-(follow|unfollow|block)$")})
+                for button in user_buttons:
+                    testid = button.get("data-testid", "")
+                    match = re.search(r"^(\d+)-(follow|unfollow|block)$", testid)
+                    if match:
+                        user_id = match.group(1)
+                        break
+            
+            # Method 2: Extract from profile image URL pattern (fallback)
+            if not user_id and soup:
                 profile_imgs = soup.find_all("img", src=re.compile(r"profile_images"))
                 for img in profile_imgs:
                     src = img.get("src", "")
-                    # Note: Profile image IDs are not actual user IDs, but can serve as identifiers
+                    # Note: Profile image IDs may not be actual user IDs
                     match = re.search(r"profile_images/(\d+)/", src)
                     if match:
-                        user_id = f"profile_{match.group(1)}"  # Prefix to clarify it's not a real user ID
+                        user_id = f"profile_{match.group(1)}"
                         break
             
-            # Method 2: Look for data attributes that might contain user information
+            # Method 3: Look for other data attributes that might contain user information
             if not user_id and soup:
-                # Search for any data attributes with user information
                 elements_with_data = soup.find_all(attrs=lambda x: x and any(k.startswith('data-') for k in x.keys()))
                 for elem in elements_with_data:
                     for attr_name, attr_value in elem.attrs.items():
@@ -371,7 +381,7 @@ class TwitterDataExtractor:
                     if user_id:
                         break
             
-            # Method 3: Use screen_name as fallback identifier
+            # Method 4: Use screen_name as final fallback
             if not user_id and screen_name:
                 user_id = f"screen_{screen_name}"
             
