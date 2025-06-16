@@ -128,8 +128,7 @@ class VideoMisuseAnalyzer:
 
         for file_path in json_files:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    tweets = safe_json_load(f)
+                tweets = safe_json_load(str(file_path))
 
                 for tweet in tweets:
                     total_tweets += 1
