@@ -15,8 +15,17 @@
 - 日本語と英数字の間には半角スペースを入れる。
 
 ## プロジェクト概要
-- 目的: Twitter/XのエクスポートデータをパースしHTMLコンテンツから詳細情報を抽出・分析するPythonツールです。
-- 主な機能: 👤 **ユーザー情報**: スクリーンネーム、表示名、プロフィール画像、認証ステータス / 📊 **エンゲージメント分析**: いいね、リツイート、リプライ、引用の詳細統計 / 🌐 **言語検出**: 高精度な多言語検出（日本語、英語、中国語、韓国語など）
+Parse Twitter/X export data at HTML level to extract detailed information (user data, engagement metrics, language detection, video misuse analysis) not available via APIs.
+
+### 技術スタック
+- **言語**: Python
+- **フレームワーク**: BeautifulSoup4, Click
+- **パッケージマネージャー**: pip
+- **主要な依存関係**:
+  - beautifulsoup4>=4.12.0
+  - lxml>=4.9.0
+  - tqdm>=4.65.0
+  - click>=8.1.0
 
 ## コーディング規約
 - フォーマット: 既存設定（ESLint / Prettier / formatter）に従う。
@@ -24,12 +33,23 @@
 - コメント言語: 日本語
 - エラーメッセージ: 英語
 
-## 開発コマンド
+### 開発コマンド
 ```bash
-# 依存関係のインストール
+# install
 pip install -r requirements.txt
 
-# 開発 / テスト / Lint は README を確認してください
+# dev
+python -m pytest
+
+# build
+python setup.py build
+
+# test
+pytest with coverage
+
+# lint
+black src/ && isort src/
+
 ```
 
 ## 注意事項
@@ -38,3 +58,14 @@ pip install -r requirements.txt
 - 既存のプロジェクトルールがある場合はそれを優先する。
 
 ## リポジトリ固有
+- **entry_point**: twitter-parse console script
+- **docker_support**: Dockerfile and compose.yaml included
+- **output_formats**: JSON (structured), CSV (analytics), HTML (reports)
+**capabilities:**
+  - User info extraction (name, screen name, verification badges)
+  - Engagement analytics (likes, retweets, replies, quotes)
+  - Language detection (Japanese character analysis)
+  - Media detection (images/videos)
+  - Video misuse detection
+  - Time series analysis
+- **breaking_changes**: v1.1.0 - VideoMisuseAnalyzer default input changed to 'output'

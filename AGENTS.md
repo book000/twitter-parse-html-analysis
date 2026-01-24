@@ -25,3 +25,14 @@
 - ログに機密情報を出力しない。
 
 ## リポジトリ固有
+- **entry_point**: twitter-parse console script
+- **docker_support**: Dockerfile and compose.yaml included
+- **output_formats**: JSON (structured), CSV (analytics), HTML (reports)
+**capabilities:**
+  - User info extraction (name, screen name, verification badges)
+  - Engagement analytics (likes, retweets, replies, quotes)
+  - Language detection (Japanese character analysis)
+  - Media detection (images/videos)
+  - Video misuse detection
+  - Time series analysis
+- **breaking_changes**: v1.1.0 - VideoMisuseAnalyzer default input changed to 'output'

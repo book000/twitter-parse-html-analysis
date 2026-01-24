@@ -1,89 +1,153 @@
 # CLAUDE.md
 
-このファイルは、このリポジトリでコードを扱う際のClaude Code (claude.ai/code) 向けのガイダンスを提供します。
+## 目的
+- Claude Code の作業方針とプロジェクト固有ルールを示す。
 
-## 会話言語
-
-**すべての会話は日本語で行ってください。** All conversations should be conducted in Japanese.
+## 判断記録のルール
+- 判断は必ずレビュー可能な形で記録する。
+  1. 判断内容の要約
+  2. 検討した代替案
+  3. 採用しなかった案とその理由
+  4. 前提条件・仮定・不確実性
+  5. 他エージェントによるレビュー可否
+- 前提・仮定・不確実性を明示し、仮定を事実のように扱わない。
 
 ## プロジェクト概要
+Parse Twitter/X export data at HTML level to extract detailed information (user data, engagement metrics, language detection, video misuse analysis) not available via APIs.
 
-twitter-parse-html-analysisは、Twitter/XのエクスポートデータをHTMLレベルで解析し、通常のAPIでは取得できない詳細情報を抽出するPythonライブラリです。
+### 技術スタック
+- **言語**: Python
+- **フレームワーク**: BeautifulSoup4, Click
+- **パッケージマネージャー**: pip
+- **主要な依存関係**:
+  - beautifulsoup4>=4.12.0
+  - lxml>=4.9.0
+  - tqdm>=4.65.0
+  - click>=8.1.0
 
-### 主な機能
-- HTMLコンテンツからの高精度データ抽出
-- 多言語対応の言語検出システム
-- 動画無断使用の検出
-- エンゲージメント分析
-- リアルタイム処理とバッチ処理
+## 重要ルール
+- 会話言語: 日本語
+- PR とコミットは Conventional Commits に従う。
+- PR タイトルとコミット本文の言語: PR タイトルは Conventional Commits 形式（英語推奨）。PR 本文は日本語。コミットは Conventional Commits 形式（description は日本語）。
+- コメント言語: 日本語
+- エラーメッセージ: 英語
+- 日本語と英数字の間には半角スペースを入れる。
+- 既存のプロジェクトルールがある場合はそれを優先する。
 
-## 開発方針
+## 環境のルール
+- ブランチ命名は Conventional Branch に従う。
+- GitHub リポジトリを調査する場合はテンポラリディレクトリに `git clone` して検索する。
+- Windows 環境では Git Bash を使用する。
+- Renovate の既存 PR には追加コミットしない。
+
+## Git Worktree
+- 使う場合は `.bare/<branch>` 構成で作成する。
+
+## ブラウザ操作
+- 座標ではなくセレクターで要素を特定する。
+- 実装と画面の差異を確認し、必要に応じて実装を改善する。
+
+## コード改修時のルール
+- 既存のエラーメッセージで先頭に絵文字がある場合、全体で統一する。
+- TypeScript 使用時は `skipLibCheck` で回避しない。
+- 関数やインターフェースには docstring（JSDoc など）を記載する。
 
 ### コーディング規約
-- PEP 8に準拠
-- 型ヒントを積極的に使用
-- docstringは必須（日本語で記述）
-- 日本語コメントを推奨
+- **formatter**: Black (line-length: 88)
+- **import_sort**: isort with Black profile
+- **language**: Python 3.9+
+- **typing**: Type hints throughout
+- **docstring**: Required in Japanese
 
-### テスト
-- 新機能には必ずユニットテストを追加
-- pytestを使用
-- カバレッジ80%以上を維持
+## 相談ルール
+- Codex CLI: 実装レビュー、局所設計、整合性確認に使う。
+- Gemini CLI: 外部仕様や最新情報の確認に使う。
+- 他エージェントの指摘は黙殺せず、採用または理由を明記して不採用とする。
 
-### パフォーマンス
-- 大量ファイル処理を想定した効率的な実装
-- メモリ使用量に配慮
-- 並列処理の活用
+### 開発コマンド
+```bash
+# install
+pip install -r requirements.txt
 
-## ディレクトリ構造
+# dev
+python -m pytest
+
+# build
+python setup.py build
+
+# test
+pytest with coverage
+
+# lint
+black src/ && isort src/
 
 ```
-repo/
-├── src/              # ソースコード
-│   ├── parser.py     # メイン処理
-│   ├── analyzer.py   # 分析機能
-│   └── language_detector.py  # 言語検出
-├── scripts/          # CLIスクリプト
-├── tests/            # テストコード
-├── examples/         # 使用例
-└── data/            # サンプルデータ
-```
 
-## 重要な注意事項
+### プロジェクト構造
 
-1. **プライバシー**: Twitterエクスポートデータは個人情報を含みます。サンプルデータを追加する際は必ず匿名化してください。
+**主要ディレクトリ:**
+- `src/ (core library)`
+- `scripts/ (CLI interface)`
+- `tests/ (test suite)`
+- `examples/ (usage examples)`
+- `data/ (sample data)`
 
-2. **APIの変更**: TwitterのエクスポートフォーマットはAPIの変更により変わる可能性があります。定期的な動作確認が必要です。
+**重要ファイル:**
+- `setup.py`
+- `pyproject.toml`
+- `requirements.txt`
+- `src/parser.py (main extraction)`
+- `src/analyzer.py (analysis engine)`
+- `src/language_detector.py (multi-language support)`
 
-3. **ライセンス**: MITライセンスですが、依存ライブラリのライセンスも確認してください。
+## 実装パターン
+- 既存のコードパターンに従う。
+- プロジェクト固有の実装ガイドラインがある場合はそれに従う。
 
-## よくあるタスク
+## テスト
+- 方針: 変更内容に応じてテストを追加する。
 
-### 新しい抽出フィールドの追加
-1. `src/parser.py`の`_extract_comprehensive_tweet_data`メソッドに追加
-2. 対応する抽出メソッドを実装
-3. テストケースを追加
+## ドキュメント更新ルール
+- 更新タイミング: 実装確定後、同一コミットまたは追加コミットで更新する。
+- README、API ドキュメント、コメント等は常に最新状態を保つ。
 
-### 新しい言語のサポート
-1. `src/language_detector.py`に言語パターンを追加
-2. スコアリングロジックを更新
-3. テストデータを追加
+## 作業チェックリスト
 
-### パフォーマンス改善
-1. プロファイリングで ボトルネックを特定
-2. 並列処理やキャッシュの活用を検討
-3. メモリ使用量をモニタリング
+### 新規改修時
+1. プロジェクトを理解する。
+2. 作業ブランチが適切であることを確認する。
+3. 最新のリモートブランチに基づいた新規ブランチであることを確認する。
+4. PR がクローズされた不要ブランチが削除済みであることを確認する。
+5. 指定されたパッケージマネージャーで依存関係をインストールする。
 
-## デバッグのヒント
+### コミット・プッシュ前
+1. Conventional Commits に従っていることを確認する。
+2. センシティブな情報が含まれていないことを確認する。
+3. Lint / Format エラーがないことを確認する。
+4. 動作確認を行う。
 
-- ログレベルをDEBUGに設定して詳細情報を確認
-- 個別ファイルの処理結果を確認
-- HTMLパース結果を視覚的に確認（BeautifulSoupのprettify()）
+### PR 作成前
+1. PR 作成の依頼があることを確認する。
+2. センシティブな情報が含まれていないことを確認する。
+3. コンフリクトの恐れがないことを確認する。
 
-## リリース前チェックリスト
+### PR 作成後
+1. コンフリクトがないことを確認する。
+2. PR 本文が最新状態のみを網羅していることを確認する。
+3. `gh pr checks <PR ID> --watch` で CI を確認する。
+4. Copilot レビューに対応し、コメントに返信する。
+5. Codex のコードレビューを実施し、指摘対応を行う。
+6. PR 本文の崩れがないことを確認する。
 
-- [ ] 全テストがパスすること
-- [ ] ドキュメントが最新であること
-- [ ] サンプルコードが動作すること
-- [ ] requirements.txtが最新であること
-- [ ] CHANGELOGを更新
+## リポジトリ固有
+- **entry_point**: twitter-parse console script
+- **docker_support**: Dockerfile and compose.yaml included
+- **output_formats**: JSON (structured), CSV (analytics), HTML (reports)
+**capabilities:**
+  - User info extraction (name, screen name, verification badges)
+  - Engagement analytics (likes, retweets, replies, quotes)
+  - Language detection (Japanese character analysis)
+  - Media detection (images/videos)
+  - Video misuse detection
+  - Time series analysis
+- **breaking_changes**: v1.1.0 - VideoMisuseAnalyzer default input changed to 'output'
