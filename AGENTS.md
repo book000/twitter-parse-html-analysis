@@ -26,9 +26,9 @@
 ### コミット規約
 
 - コミットメッセージは [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) に従う。
-- `<type>(<scope>): <description>` 形式を使用する。
+- `<type>(<scope>): <description>` 形式を使用する（`<scope>` は任意）。
 - `<description>` は日本語で記載する。
-- 例: `feat: ツイート抽出機能を追加`
+- 例: `feat(app): ツイート抽出機能を追加`
 
 ### ブランチ命名
 

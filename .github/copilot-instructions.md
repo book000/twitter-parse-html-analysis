@@ -126,10 +126,10 @@ python scripts/extract_tweets.py --input downloads --output parsed --analyze-mis
 
 ### 主要ファイル
 
-- `src/parser.py` (1,197 行): TwitterDataExtractor - メイン処理エンジン
-- `src/analyzer.py` (664 行): VideoMisuseAnalyzer - 動画無断使用分析
-- `src/language_detector.py` (414 行): LanguageDetector - 多言語言語検出
-- `src/utils.py` (681 行): ユーティリティ関数（JSON 安全読み込み、HTML サニタイズなど）
+- `src/parser.py`: TwitterDataExtractor - メイン処理エンジン
+- `src/analyzer.py`: VideoMisuseAnalyzer - 動画無断使用分析
+- `src/language_detector.py`: LanguageDetector - 多言語言語検出
+- `src/utils.py`: ユーティリティ関数（JSON 安全読み込み、HTML サニタイズなど）
 
 ### よくあるタスク
 

@@ -33,9 +33,9 @@
 ### コミット規約
 
 - コミットメッセージは [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) に従う。
-- `<type>(<scope>): <description>` 形式を使用する。
+- `<type>(<scope>): <description>` 形式を使用する（`<scope>` は任意）。
 - `<description>` は日本語で記載する。
-- 例: `feat: 言語検出機能を改善`
+- 例: `feat(lang-detection): 言語検出機能を改善`
 
 ### ブランチ命名
 
@@ -245,19 +245,19 @@ python scripts/extract_tweets.py --input downloads --output parsed --sample
 
 ### 主要ファイル
 
-- **src/parser.py** (1,197 行): `TwitterDataExtractor` - メイン処理エンジン
-- **src/analyzer.py** (664 行): `VideoMisuseAnalyzer` - 動画無断使用分析
-- **src/language_detector.py** (414 行): `LanguageDetector` - 多言語言語検出
-- **src/utils.py** (681 行): ユーティリティ関数（JSON 安全読み込み、HTML サニタイズなど）
+- **src/parser.py**: `TwitterDataExtractor` - メイン処理エンジン
+- **src/analyzer.py**: `VideoMisuseAnalyzer` - 動画無断使用分析
+- **src/language_detector.py**: `LanguageDetector` - 多言語言語検出
+- **src/utils.py**: ユーティリティ関数（JSON 安全読み込み、HTML サニタイズなど）
 - **scripts/extract_tweets.py**: CLI インターフェース
 
 ### テスト構成
 
-- **tests/test_parser.py** (357 行): TwitterDataExtractor のテスト
-- **tests/test_analyzer.py** (261 行): VideoMisuseAnalyzer のテスト
-- **tests/test_language_detector.py** (178 行): LanguageDetector のテスト
-- **tests/test_utils.py** (155 行): ユーティリティ関数のテスト
-- **tests/test_security.py** (203 行): セキュリティテスト
+- **tests/test_parser.py**: TwitterDataExtractor のテスト
+- **tests/test_analyzer.py**: VideoMisuseAnalyzer のテスト
+- **tests/test_language_detector.py**: LanguageDetector のテスト
+- **tests/test_utils.py**: ユーティリティ関数のテスト
+- **tests/test_security.py**: セキュリティテスト
 
 ### CI/CD
 
