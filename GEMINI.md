@@ -241,7 +241,7 @@ python scripts/extract_tweets.py --input downloads --output parsed --sample
 - **Lint**: flake8 (>=6.0.0)
 - **型チェッカー**: mypy (>=1.0.0)
 - **セキュリティ**: bandit (>=1.7.0), safety (>=2.3.0)
-- **Docker**: Python 3.14-slim ベースイメージ
+- **Docker**: Python 3.12-slim ベースイメージ
 
 ### 主要ファイル
 

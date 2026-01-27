@@ -20,7 +20,7 @@
 - プログレスバー: tqdm (>=4.65.0)
 - 型チェック: typing, typing_extensions (>=4.5.0)
 - パッケージマネージャー: pip
-- Docker: Python 3.14-slim ベースイメージ
+- Docker: Python 3.12-slim ベースイメージ
 
 ## コーディング規約
 
