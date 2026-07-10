@@ -1,89 +1,87 @@
 # CLAUDE.md
 
-このファイルは、このリポジトリでコードを扱う際のClaude Code (claude.ai/code) 向けのガイダンスを提供します。
+このファイルは、このリポジトリでコードを扱う際の Claude Code (claude.ai/code) 向けのガイダンスを提供します。
 
 ## 会話言語
 
-**すべての会話は日本語で行ってください。** All conversations should be conducted in Japanese.
+**すべての会話は日本語で行ってください。** 日本語と英数字の間には半角スペースを入れます。
 
 ## プロジェクト概要
 
-twitter-parse-html-analysisは、Twitter/XのエクスポートデータをHTMLレベルで解析し、通常のAPIでは取得できない詳細情報を抽出するPythonライブラリです。
+twitter-parse-html-analysis は、Twitter/X のエクスポートデータを HTML レベルで解析し、通常の API では取得できない詳細情報を抽出する Python ライブラリです。主な機能は、HTML からの高精度データ抽出、多言語対応の言語検出、動画無断使用の検出、エンゲージメント分析、バッチ処理です。
 
-### 主な機能
-- HTMLコンテンツからの高精度データ抽出
-- 多言語対応の言語検出システム
-- 動画無断使用の検出
-- エンゲージメント分析
-- リアルタイム処理とバッチ処理
+## 開発コマンド
 
-## 開発方針
+```bash
+# 依存関係のインストール
+pip install -r requirements.txt        # 実行時依存
+pip install -r dev-requirements.txt    # 開発依存
 
-### コーディング規約
-- PEP 8に準拠
-- 型ヒントを積極的に使用
-- docstringは必須（日本語で記述）
-- 日本語コメントを推奨
+# テスト（カバレッジ付き）
+pytest tests/ --cov=src --cov-report=term-missing
 
-### テスト
-- 新機能には必ずユニットテストを追加
-- pytestを使用
-- カバレッジ80%以上を維持
+# フォーマット / インポート整理
+black src scripts tests examples
+isort src scripts tests examples
 
-### パフォーマンス
-- 大量ファイル処理を想定した効率的な実装
-- メモリ使用量に配慮
-- 並列処理の活用
+# Lint / 型チェック（CI と同じ設定）
+flake8 src scripts examples --max-complexity=10 --max-line-length=127
+mypy src --ignore-missing-imports --no-strict-optional
 
-## ディレクトリ構造
+# CLI 実行（--input-dir も別名として利用可）
+python scripts/extract_tweets.py --input downloads --output parsed
+python scripts/extract_tweets.py --input downloads --output parsed --consolidated
+python scripts/extract_tweets.py --input downloads --output parsed --analyze-misuse
 
-```
-repo/
-├── src/              # ソースコード
-│   ├── parser.py     # メイン処理
-│   ├── analyzer.py   # 分析機能
-│   └── language_detector.py  # 言語検出
-├── scripts/          # CLIスクリプト
-├── tests/            # テストコード
-├── examples/         # 使用例
-└── data/            # サンプルデータ
+# Docker（compose.yaml のサービス名: twitter-parser / -dev / -test）
+docker compose build
+docker compose run --rm twitter-parser-test
 ```
 
-## 重要な注意事項
+## アーキテクチャ / 主要ファイル
 
-1. **プライバシー**: Twitterエクスポートデータは個人情報を含みます。サンプルデータを追加する際は必ず匿名化してください。
+- `src/parser.py`: `TwitterDataExtractor` — メインの抽出エンジン。
+- `src/analyzer.py`: `VideoMisuseAnalyzer` — 動画無断使用分析。
+- `src/language_detector.py`: `LanguageDetector` — 多言語検出。
+- `src/utils.py`: ユーティリティ（JSON 安全読み込み、HTML サニタイズなど）。
+- `scripts/extract_tweets.py`: CLI インターフェース（`console_scripts` の `twitter-parse` から呼ばれる）。
+- `tests/`: `test_parser.py` / `test_analyzer.py` / `test_language_detector.py` / `test_utils.py` / `test_security.py`。
+- `examples/`: `basic_usage.py` / `video_analysis.py`。
 
-2. **APIの変更**: TwitterのエクスポートフォーマットはAPIの変更により変わる可能性があります。定期的な動作確認が必要です。
+## コーディング規約
 
-3. **ライセンス**: MITライセンスですが、依存ライブラリのライセンスも確認してください。
+- PEP 8 に準拠。フォーマットは Black（行長 88）、インポート整理は isort（Black プロファイル、`pyproject.toml` で設定）。
+- 型ヒントを積極的に使用する。関数の引数・戻り値には型ヒントを付ける。
+- docstring は必須。docstring とコード内コメントは日本語で記述する。
+- エラーメッセージは英語を原則とし、必要に応じて日本語の説明を添える。
+- 命名: 変数・関数は `snake_case`、クラスは `PascalCase`、定数は `UPPER_SNAKE_CASE`、プライベートメソッドは `_method_name`。
+
+## テスト方針
+
+- pytest を使用。新機能には必ずユニットテストを追加する。
+- カバレッジ 80% 以上を維持する。
+- パーサーの実装を変更したら、対応するテストケースを必ず更新する。
+
+## セキュリティ / データ取り扱い
+
+- Twitter エクスポートデータは個人情報を含む。サンプルデータを追加する際は必ず匿名化する。
+- API キー・パスワード・トークンなどの認証情報を Git にコミットしない（`.env`, `*.pem`, `*.key` は `.gitignore` 済み）。
+- ログに個人情報・認証情報を出力しない。
+- 実データファイル（`*.json`, `*.csv`, `*.xlsx`, `*.xls`）および出力ディレクトリ（`parsed/`, `reports/`, `output/`, `results/`, `downloads/`）はコミットしない（`.gitignore` 済み）。
+
+## Git 運用
+
+- コミットは [Conventional Commits](https://www.conventionalcommits.org/)（`<type>(<scope>): <description>`、`<description>` は日本語）。例: `feat(parser): ツイート抽出機能を追加`。
+- ブランチは [Conventional Branch](https://conventional-branch.github.io) の短縮形（`feat`, `fix` など）。例: `feat/add-tweet-extraction`。
+
+## ドキュメント更新ルール
+
+- CLI フラグ・公開 API・依存関係を変更したら `README.md` を更新する。
+- ディレクトリ構成・主要クラス・コマンドを変更したら、この CLAUDE.md の該当箇所を更新する。
+- Docker の使い方を変更したら `docker/README.md` を更新する。
 
 ## よくあるタスク
 
-### 新しい抽出フィールドの追加
-1. `src/parser.py`の`_extract_comprehensive_tweet_data`メソッドに追加
-2. 対応する抽出メソッドを実装
-3. テストケースを追加
-
-### 新しい言語のサポート
-1. `src/language_detector.py`に言語パターンを追加
-2. スコアリングロジックを更新
-3. テストデータを追加
-
-### パフォーマンス改善
-1. プロファイリングで ボトルネックを特定
-2. 並列処理やキャッシュの活用を検討
-3. メモリ使用量をモニタリング
-
-## デバッグのヒント
-
-- ログレベルをDEBUGに設定して詳細情報を確認
-- 個別ファイルの処理結果を確認
-- HTMLパース結果を視覚的に確認（BeautifulSoupのprettify()）
-
-## リリース前チェックリスト
-
-- [ ] 全テストがパスすること
-- [ ] ドキュメントが最新であること
-- [ ] サンプルコードが動作すること
-- [ ] requirements.txtが最新であること
-- [ ] CHANGELOGを更新
+- **抽出フィールドの追加**: `src/parser.py` の `_extract_comprehensive_tweet_data` に追加 → 対応する抽出メソッドを実装 → `tests/test_parser.py` にテスト追加。
+- **言語サポートの追加**: `src/language_detector.py` に言語パターンを追加 → スコアリングロジックを更新 → `tests/test_language_detector.py` にテストデータ追加。
+- **デバッグ**: ログレベルを DEBUG に設定。HTML パース結果は BeautifulSoup の `prettify()` で確認する。
