@@ -15,7 +15,6 @@ from src.utils import (
     extract_urls,
     format_large_number,
     format_time_duration,
-    is_likely_spam,
     normalize_username,
     safe_float_convert,
     safe_int_convert,
@@ -141,15 +140,3 @@ class TestAnalysisUtils:
         # Test with no follower count
         rate = calculate_engagement_rate(metrics)
         assert rate >= 0
-
-    def test_is_likely_spam(self):
-        """Test spam detection."""
-        spam_text = "FREE MONEY!!! CLICK HERE NOW!!!"
-        result = is_likely_spam(spam_text)
-        assert isinstance(result, dict)
-        assert "is_spam" in result
-        assert "confidence" in result
-
-        normal_text = "Just had a great day at the park."
-        result = is_likely_spam(normal_text)
-        assert isinstance(result, dict)

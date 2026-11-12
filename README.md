@@ -11,8 +11,6 @@ A Python tool that parses Twitter/X tweet data saved as JSON (with the tweet's r
 - **Video misuse analysis**: aggregates the extraction output into per-user violation lists, rankings, victim creator rankings and summary statistics.
 - **Progress logging**: periodic progress, ETA and throughput logs. Files are processed sequentially, one at a time.
 
-`src/utils.py` also contains `is_likely_spam`, a small text-pattern heuristic. It is not a machine learning model and the CLI does not call it.
-
 ## Requirements
 
 - Python 3.9 or later (CI runs the tests on 3.9 to 3.12)
@@ -70,7 +68,6 @@ PYTHONPATH=. python scripts/extract_tweets.py --input downloads --output parsed 
 | `--reports` | `reports` | Output directory for reports |
 | `--consolidated`, `-c` | off | Also write `all_extracted_tweets_<timestamp>.json` |
 | `--analyze-misuse` | off | Run `VideoMisuseAnalyzer` on the output directory afterwards |
-| `--sample` | off | Currently has no effect other than printing a message |
 | `--verbose`, `-v` / `--quiet`, `-q` | | Debug or warning-only logging |
 
 The CLI console output is in Japanese. Log messages are in English. A log file `twitter_data_extractor.log` is written to the current directory.
