@@ -5,6 +5,7 @@ Tests for VideoMisuseAnalyzer
 
 import csv
 import json
+import logging
 import shutil
 import tempfile
 import unittest
@@ -75,6 +76,23 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
         self.assertEqual(analyzer.input_dir, self.input_dir)
         self.assertEqual(analyzer.output_dir, self.output_dir)
         self.assertIsNotNone(analyzer.logger)
+
+    def test_init_creates_missing_output_dir_before_logging(self):
+        """A missing output directory is created so the log file can be opened."""
+        missing_dir = Path(self.temp_dir) / "missing" / "nested"
+        root_logger = logging.getLogger()
+
+        def close_log_handlers():
+            for handler in root_logger.handlers[:]:
+                if getattr(handler, "baseFilename", "").startswith(str(missing_dir)):
+                    handler.close()
+                    root_logger.removeHandler(handler)
+
+        self.addCleanup(close_log_handlers)
+
+        VideoMisuseAnalyzer(input_dir=str(self.input_dir), output_dir=str(missing_dir))
+
+        self.assertTrue((missing_dir / "video_misuse_analyzer.log").is_file())
 
     def test_analyze_all_csv_user_id_column(self):
         """Test that user_id column is included in CSV output with correct order."""

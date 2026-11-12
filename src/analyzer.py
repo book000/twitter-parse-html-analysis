@@ -40,11 +40,10 @@ class VideoMisuseAnalyzer:
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
 
-        # Setup logging
-        self.logger = self._setup_logging(log_level)
+        # The log file lives in output_dir, so the directory must exist first
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Setup output directory
-        self.output_dir.mkdir(exist_ok=True)
+        self.logger = self._setup_logging(log_level)
 
         # Analysis data storage
         self.video_misuse_data = []
