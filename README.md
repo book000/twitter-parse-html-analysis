@@ -43,7 +43,7 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-The project is run from a source checkout. `setup.py` exists, but the built package does not contain the `src` modules and the `twitter-parse` console script it declares is not usable.
+The project is run from a source checkout. `setup.py` only carries project metadata: `pip install .` installs no modules and provides no console script, so use the commands below from the repository root.
 
 ## Usage
 
