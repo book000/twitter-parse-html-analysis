@@ -148,24 +148,23 @@ class TwitterDataExtractor:
                 # Process single file
                 file_data = self._process_single_file(file_path)
 
-                if file_data:
-                    # Output individual file immediately
-                    self._output_individual_file(file_data["tweets"], file_path)
+                # Output individual file immediately
+                self._output_individual_file(file_data["tweets"], file_path)
 
-                    # Update statistics
-                    file_summaries.append(file_data["summary"])
-                    self.stats["processed_files"] += 1
-                    self.stats["total_tweets"] += len(file_data["tweets"])
-                    self.stats["successful_extractions"] += file_data["summary"][
-                        "successful_tweets"
-                    ]
+                # Update statistics
+                file_summaries.append(file_data["summary"])
+                self.stats["processed_files"] += 1
+                self.stats["total_tweets"] += len(file_data["tweets"])
+                self.stats["successful_extractions"] += file_data["summary"][
+                    "successful_tweets"
+                ]
 
-                    # Collect video statistics
-                    self._update_video_stats(file_data["tweets"])
+                # Collect video statistics
+                self._update_video_stats(file_data["tweets"])
 
-                    # Store for consolidated file if requested
-                    if self.create_consolidated:
-                        all_tweets_data.extend(file_data["tweets"])
+                # Store for consolidated file if requested
+                if self.create_consolidated:
+                    all_tweets_data.extend(file_data["tweets"])
 
             except Exception as e:
                 error_msg = f"File processing error {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
@@ -191,63 +190,62 @@ class TwitterDataExtractor:
         self.logger.info("=== Twitter data extraction finished ===")
         return self.stats
 
-    def _process_single_file(self, file_path: Path) -> Optional[Dict[str, Any]]:
-        """Process a single JSON file."""
-        try:
-            data = safe_json_load(str(file_path))
+    def _process_single_file(self, file_path: Path) -> Dict[str, Any]:
+        """
+        Process a single JSON file.
 
-            if "data" not in data or not isinstance(data["data"], list):
-                self.logger.warning(f"Invalid file structure: {file_path.name}")
-                return None
+        Returns:
+            Dictionary with the extracted ``tweets`` and the file ``summary``.
 
-            tweets = data["data"]
-            extracted_tweets = []
-            successful_count = 0
-            error_count = 0
+        Raises:
+            ValueError: If the file is too large, is not valid JSON or has no
+                ``data`` list.
+            OSError: If the file cannot be read.
 
-            for tweet_index, tweet in enumerate(tweets):
-                try:
-                    tweet_data = self._extract_comprehensive_tweet_data(
-                        tweet, file_path.name, tweet_index
-                    )
-                    extracted_tweets.append(tweet_data)
+        File-level failures propagate so that ``extract_all`` records them in
+        the error report and ``error_count``.
+        """
+        data = safe_json_load(str(file_path))
 
-                    if tweet_data.get("data_quality_score", 0) > 50:
-                        successful_count += 1
-                    else:
-                        error_count += 1
+        if "data" not in data or not isinstance(data["data"], list):
+            raise ValueError(f"Invalid file structure: {file_path.name}")
 
-                except Exception as e:
-                    error_data = self._create_error_record(
-                        file_path.name, tweet_index, str(e)
-                    )
-                    extracted_tweets.append(error_data)
+        tweets = data["data"]
+        extracted_tweets = []
+        successful_count = 0
+        error_count = 0
+
+        for tweet_index, tweet in enumerate(tweets):
+            try:
+                tweet_data = self._extract_comprehensive_tweet_data(
+                    tweet, file_path.name, tweet_index
+                )
+                extracted_tweets.append(tweet_data)
+
+                if tweet_data.get("data_quality_score", 0) > 50:
+                    successful_count += 1
+                else:
                     error_count += 1
 
-            # File summary
-            file_summary = {
-                "filename": file_path.name,
-                "total_tweets": len(tweets),
-                "successful_tweets": successful_count,
-                "error_tweets": error_count,
-                "success_rate": successful_count / len(tweets) if tweets else 0,
-                "file_size": file_path.stat().st_size,
-                "processing_timestamp": datetime.now().isoformat(),
-            }
+            except Exception as e:
+                error_data = self._create_error_record(
+                    file_path.name, tweet_index, str(e)
+                )
+                extracted_tweets.append(error_data)
+                error_count += 1
 
-            return {"tweets": extracted_tweets, "summary": file_summary}
+        # File summary
+        file_summary = {
+            "filename": file_path.name,
+            "total_tweets": len(tweets),
+            "successful_tweets": successful_count,
+            "error_tweets": error_count,
+            "success_rate": successful_count / len(tweets) if tweets else 0,
+            "file_size": file_path.stat().st_size,
+            "processing_timestamp": datetime.now().isoformat(),
+        }
 
-        except ValueError as e:
-            # Safe JSON loading errors
-            self.logger.error(
-                f"JSON load error {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
-            )
-            return None
-        except Exception as e:
-            self.logger.error(
-                f"File read error {sanitize_log_message(file_path.name)}: {sanitize_log_message(str(e))}"
-            )
-            return None
+        return {"tweets": extracted_tweets, "summary": file_summary}
 
     def _extract_comprehensive_tweet_data(
         self, tweet: Dict, file_source: str, tweet_index: int

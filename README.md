@@ -31,7 +31,7 @@ Each `*.json` file in the input directory must be an object with a `data` list. 
 | `likeCount`, `retweetCount`, `replyCount`, `quoteCount` | Engagement counts |
 | `inReplyToTweetId`, `inReplyToUser`, `quotedTweet`, `retweetedTweet` | Optional context |
 
-Files without a `data` list are skipped with a warning.
+Files that are not valid JSON or lack a `data` list are reported as errors: they are counted in `error_count` and listed in `error_report_<timestamp>.json`.
 
 ## Installation
 
@@ -157,7 +157,7 @@ See [docker/README.md](docker/README.md) for details.
 
 - `summary_report_<timestamp>.json`: per-file summaries and overall statistics
 - `processing_statistics_<timestamp>.json`: overall statistics
-- `error_report_<timestamp>.json`: only written if an unexpected exception escaped file processing. Files that cannot be read, are not valid JSON, or lack a `data` list are only logged (see the log file), not listed here.
+- `error_report_<timestamp>.json`: only written if at least one file could not be processed (it cannot be read, is not valid JSON, or lacks a `data` list). It has one entry per failed file with `file`, `error` and `timestamp`, and `error_count` in the statistics counts the same files.
 
 ### Video misuse analysis (`video_misuse_analysis` by default)
 
