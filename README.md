@@ -26,7 +26,7 @@ Each `*.json` file in the input directory must be an object with a `data` list. 
 |-----|-------------|
 | `tweetId` | Tweet ID |
 | `tweetText` | Plain tweet text |
-| `elementHtml` | Rendered HTML of the tweet element (HTML over 500,000 bytes in UTF-8 is truncated to its first 100,000 characters and an error is recorded) |
+| `elementHtml` | Rendered HTML of the tweet element (HTML over 500,000 bytes in UTF-8 is truncated to its first 100,000 bytes and an error is recorded) |
 | `screenName` | Optional; otherwise derived from the HTML |
 | `likeCount`, `retweetCount`, `replyCount`, `quoteCount` | Engagement counts |
 | `inReplyToTweetId`, `inReplyToUser`, `quotedTweet`, `retweetedTweet` | Optional context |

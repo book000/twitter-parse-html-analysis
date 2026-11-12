@@ -271,7 +271,10 @@ class TwitterDataExtractor:
                     data["extraction_errors"].append(
                         "HTML content too large, truncated"
                     )
-                    html_content = html_content[:100000]  # Truncate if too large
+                    # Cut in bytes like the size check; "ignore" drops a split char
+                    html_content = html_content.encode("utf-8")[:100000].decode(
+                        "utf-8", errors="ignore"
+                    )
 
                 # Sanitize HTML content to prevent XSS
                 html_content = sanitize_html_content(html_content)

@@ -352,6 +352,28 @@ class TestTwitterDataExtractor(unittest.TestCase):
         # Note: The malformed file might be skipped rather than counted as error
         # depending on validation logic, so we check that processing completes
 
+    def test_oversized_multibyte_html_truncated_by_bytes(self):
+        """Oversized multibyte HTML is truncated to at most 100,000 bytes."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        # 3 bytes per char: 200,000 chars = 600,000 bytes (> 500,000 limit)
+        tweet = {"tweetId": "1", "elementHtml": "<p>" + "あ" * 200000 + "</p>"}
+
+        with patch(
+            "src.parser.sanitize_html_content", side_effect=lambda h: h
+        ) as sanitize:
+            data = extractor._extract_comprehensive_tweet_data(tweet, "f.json", 0)
+
+        truncated = sanitize.call_args[0][0]
+        # "<p>" (3 bytes) + 33,332 three-byte chars; the char split at byte
+        # 100,000 is dropped
+        self.assertEqual(truncated, "<p>" + "あ" * 33332)
+        self.assertEqual(len(truncated.encode("utf-8")), 99999)
+        self.assertIn("HTML content too large, truncated", data["extraction_errors"])
+
 
 if __name__ == "__main__":
     unittest.main()
