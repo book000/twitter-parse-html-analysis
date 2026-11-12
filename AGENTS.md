@@ -17,7 +17,7 @@ Python tool that parses Twitter/X export JSON (tweet text plus rendered `element
 - `src/analyzer.py`: `VideoMisuseAnalyzer`, aggregates `*_extracted.json` into CSV/JSON reports.
 - `src/language_detector.py`: `LanguageDetector`.
 - `src/utils.py`: safe JSON loading, HTML and log sanitizing, small helpers.
-- `scripts/extract_tweets.py`: CLI. Run it from the repository root with `PYTHONPATH=.` (the Docker image sets it).
+- `scripts/extract_tweets.py`: CLI. It adds the repository root to `sys.path` itself, so it runs without `PYTHONPATH`.
 - `tests/`, `examples/`, `docker/README.md`, `compose.yaml` (services `twitter-parser`, `twitter-parser-dev`, `twitter-parser-test`).
 
 ## Commands

@@ -26,7 +26,7 @@ Each `*.json` file in the input directory must be an object with a `data` list. 
 |-----|-------------|
 | `tweetId` | Tweet ID |
 | `tweetText` | Plain tweet text |
-| `elementHtml` | Rendered HTML of the tweet element (HTML over 500,000 bytes in UTF-8 is truncated to its first 100,000 characters and an error is recorded) |
+| `elementHtml` | Rendered HTML of the tweet element (HTML over 500,000 bytes in UTF-8 is truncated to its first 100,000 bytes and an error is recorded) |
 | `screenName` | Optional; otherwise derived from the HTML |
 | `likeCount`, `retweetCount`, `replyCount`, `quoteCount` | Engagement counts |
 | `inReplyToTweetId`, `inReplyToUser`, `quotedTweet`, `retweetedTweet` | Optional context |
@@ -49,18 +49,18 @@ The project is run from a source checkout. `setup.py` exists, but the built pack
 
 ### Command line
 
-`scripts/extract_tweets.py` imports the `src` package, so run it from the repository root with the root on `PYTHONPATH` (the Docker image sets this for you).
+Run `scripts/extract_tweets.py` from a source checkout. It adds the repository root to `sys.path` itself, so no `PYTHONPATH` setting is needed.
 
 ```bash
 # Basic extraction
-PYTHONPATH=. python scripts/extract_tweets.py --input downloads --output parsed
+python scripts/extract_tweets.py --input downloads --output parsed
 
 # Also write one consolidated file with all tweets
-PYTHONPATH=. python scripts/extract_tweets.py --input downloads --output parsed --consolidated
+python scripts/extract_tweets.py --input downloads --output parsed --consolidated
 
 # Also run the video misuse analysis (results go to ./video_misuse_analysis)
 mkdir -p video_misuse_analysis
-PYTHONPATH=. python scripts/extract_tweets.py --input downloads --output parsed --analyze-misuse
+python scripts/extract_tweets.py --input downloads --output parsed --analyze-misuse
 ```
 
 | Option | Default | Description |
