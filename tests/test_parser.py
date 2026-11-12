@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.parser import TwitterDataExtractor
+from src.utils import safe_json_load as real_safe_json_load
 
 
 class TestTwitterDataExtractor(unittest.TestCase):
@@ -347,30 +348,83 @@ class TestTwitterDataExtractor(unittest.TestCase):
         with patch.object(extractor, "logger", MagicMock()):
             stats = extractor.extract_all()
 
-        # Should process at least the good file
-        self.assertGreaterEqual(stats["processed_files"], 1)
-        # Note: The malformed file might be skipped rather than counted as error
-        # depending on validation logic, so we check that processing completes
+        self.assertEqual(stats["processed_files"], 1)
+        self.assertEqual(stats["error_count"], 1)
+
+    def _run_extract_all(self):
+        """Run extract_all with a silenced logger and return its stats."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        with patch.object(extractor, "logger", MagicMock()):
+            return extractor.extract_all()
+
+    def _load_single_error_report(self):
+        """Return the entries of the only error report in the reports dir."""
+        report_files = list(self.reports_dir.glob("error_report_*.json"))
+        self.assertEqual(len(report_files), 1)
+        with open(report_files[0], "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_invalid_json_file_is_reported(self):
+        """A file with invalid JSON is counted and listed in the error report."""
+        (self.input_dir / "broken.json").write_text("{not json", encoding="utf-8")
+
+        stats = self._run_extract_all()
+
+        self.assertEqual(stats["processed_files"], 1)
+        self.assertEqual(stats["error_count"], 1)
+        entries = self._load_single_error_report()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["file"], "broken.json")
+
+    def test_invalid_structure_file_is_reported(self):
+        """A file without a data list is counted and listed in the error report."""
+        (self.input_dir / "bad.json").write_text('{"invalid": 1}', encoding="utf-8")
+
+        stats = self._run_extract_all()
+
+        self.assertEqual(stats["processed_files"], 1)
+        self.assertEqual(stats["error_count"], 1)
+        entries = self._load_single_error_report()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["file"], "bad.json")
+        self.assertEqual(entries[0]["error"], "Invalid file structure: bad.json")
+
+    def test_unreadable_file_is_reported(self):
+        """A file that fails to read is counted and listed in the error report."""
+        shutil.copy(self.input_dir / "sample.json", self.input_dir / "unreadable.json")
+
+        def fail_for_unreadable(path, *args, **kwargs):
+            if str(path).endswith("unreadable.json"):
+                raise OSError("disk error")
+            return real_safe_json_load(path, *args, **kwargs)
+
+        with patch("src.parser.safe_json_load", side_effect=fail_for_unreadable):
+            stats = self._run_extract_all()
+
+        self.assertEqual(stats["processed_files"], 1)
+        self.assertEqual(stats["error_count"], 1)
+        entries = self._load_single_error_report()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["file"], "unreadable.json")
+        self.assertEqual(entries[0]["error"], "disk error")
+
+    def test_valid_files_only_write_no_error_report(self):
+        """A run with only valid files has no errors and no error report."""
+        stats = self._run_extract_all()
+
+        self.assertEqual(stats["processed_files"], 1)
+        self.assertEqual(stats["error_count"], 0)
+        self.assertEqual(list(self.reports_dir.glob("error_report_*.json")), [])
 
     def _make_extractor(self):
         return TwitterDataExtractor(
             input_dir=str(self.input_dir),
             output_dir=str(self.output_dir),
             reports_dir=str(self.reports_dir),
-        )
-
-    def test_invalid_structure_log_is_sanitized(self):
-        """File names in the invalid-structure warning must not carry control chars."""
-        bad_file = self.input_dir / "bad\nFAKE LOG LINE.json"
-        bad_file.write_text('{"invalid": 1}', encoding="utf-8")
-
-        extractor = self._make_extractor()
-        mock_logger = MagicMock()
-        with patch.object(extractor, "logger", mock_logger):
-            self.assertIsNone(extractor._process_single_file(bad_file))
-
-        mock_logger.warning.assert_called_once_with(
-            "Invalid file structure: bad FAKE LOG LINE.json"
         )
 
     def test_individual_output_error_log_is_sanitized(self):

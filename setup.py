@@ -5,7 +5,7 @@ Setup script for Twitter HTML Parser & Analysis Tool
 
 from pathlib import Path
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 # Read README for long description
 readme_path = Path(__file__).parent / "README.md"
@@ -30,15 +30,14 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Tomachi",
-    author_email="https://github.com/book000/twitter-parse-html-analysis",
     url="https://github.com/book000/twitter-parse-html-analysis",
     project_urls={
         "Bug Reports": "https://github.com/book000/twitter-parse-html-analysis/issues",
         "Source": "https://github.com/book000/twitter-parse-html-analysis",
         "Documentation": "https://github.com/book000/twitter-parse-html-analysis#readme",
     },
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
+    # Explicit empty list: omitting it makes setuptools auto-discover src/ and install its modules at top level.
+    packages=[],
     python_requires=">=3.10",
     install_requires=requirements,
     extras_require={
@@ -67,11 +66,6 @@ setup(
             "tqdm>=4.65.0",
             "nltk>=3.8",
             "textblob>=0.17.1",
-        ],
-    },
-    entry_points={
-        "console_scripts": [
-            "twitter-parse=scripts.extract_tweets:main",
         ],
     },
     classifiers=[

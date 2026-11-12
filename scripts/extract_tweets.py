@@ -32,9 +32,6 @@ Examples:
 
   # Analyze video misuse after extraction
   python extract_tweets.py --input downloads --output parsed --analyze-misuse
-  
-  # Sample mode (first 10 files only)
-  python extract_tweets.py --input downloads --output parsed --sample
         """,
     )
 
@@ -62,11 +59,6 @@ Examples:
         "-c",
         action="store_true",
         help="Create consolidated output file with all tweets",
-    )
-    parser.add_argument(
-        "--sample",
-        action="store_true",
-        help="Sample mode: process only first 10 files for testing",
     )
     parser.add_argument(
         "--analyze-misuse",
@@ -102,11 +94,6 @@ Examples:
         # Initialize extractor
         print("🚀 Twitter データ抽出・分析ツール")
         print("=" * 50)
-
-        if args.sample:
-            print("📝 サンプルモード: 最初の10ファイルのみ処理")
-            # For sample mode, we'll need to modify the extractor
-            # This is a simplified implementation
 
         extractor = TwitterDataExtractor(
             input_dir=args.input,

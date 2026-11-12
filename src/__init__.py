@@ -8,7 +8,6 @@ and video misuse detection.
 
 __version__ = "1.0.0"
 __author__ = "Twitter HTML Parser Project"
-__email__ = "https://github.com/yourusername/twitter-parse-html-analysis"
 
 from .analyzer import VideoMisuseAnalyzer
 from .language_detector import LanguageDetector

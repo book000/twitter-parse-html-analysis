@@ -32,7 +32,7 @@ docker run --rm \
   python scripts/extract_tweets.py --input /app/data --output /app/output --reports /app/reports
 ```
 
-The CLI options are `--input` (alias `--input-dir`), `--output`, `--reports`, `--consolidated`, `--analyze-misuse`, `--sample`, `--verbose` and `--quiet`. There is no `--output-dir` or `--reports-dir` option. See the [main README](../README.md#command-line) for the full table.
+The CLI options are `--input` (alias `--input-dir`), `--output`, `--reports`, `--consolidated`, `--analyze-misuse`, `--verbose` and `--quiet`. There is no `--output-dir` or `--reports-dir` option. See the [main README](../README.md#command-line) for the full table.
 
 ## Examples
 

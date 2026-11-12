@@ -11,8 +11,6 @@ A Python tool that parses Twitter/X tweet data saved as JSON (with the tweet's r
 - **Video misuse analysis**: aggregates the extraction output into per-user violation lists, rankings, victim creator rankings and summary statistics.
 - **Progress logging**: periodic progress, ETA and throughput logs. Files are processed sequentially, one at a time.
 
-`src/utils.py` also contains `is_likely_spam`, a small text-pattern heuristic. It is not a machine learning model and the CLI does not call it.
-
 ## Requirements
 
 - Python 3.9 or later (CI runs the tests on 3.9 to 3.12)
@@ -31,7 +29,7 @@ Each `*.json` file in the input directory must be an object with a `data` list. 
 | `likeCount`, `retweetCount`, `replyCount`, `quoteCount` | Engagement counts |
 | `inReplyToTweetId`, `inReplyToUser`, `quotedTweet`, `retweetedTweet` | Optional context |
 
-Files without a `data` list are skipped with a warning.
+Files that are not valid JSON or lack a `data` list are reported as errors: they are counted in `error_count` and listed in `error_report_<timestamp>.json`.
 
 ## Installation
 
@@ -43,7 +41,7 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-The project is run from a source checkout. `setup.py` exists, but the built package does not contain the `src` modules and the `twitter-parse` console script it declares is not usable.
+The project is run from a source checkout. `setup.py` only carries project metadata: `pip install .` installs no modules and provides no console script, so use the commands below from the repository root.
 
 ## Usage
 
@@ -70,7 +68,6 @@ python scripts/extract_tweets.py --input downloads --output parsed --analyze-mis
 | `--reports` | `reports` | Output directory for reports |
 | `--consolidated`, `-c` | off | Also write `all_extracted_tweets_<timestamp>.json` |
 | `--analyze-misuse` | off | Run `VideoMisuseAnalyzer` on the output directory afterwards |
-| `--sample` | off | Currently has no effect other than printing a message |
 | `--verbose`, `-v` / `--quiet`, `-q` | | Debug or warning-only logging |
 
 The CLI console output is in Japanese. Log messages are in English. A log file `twitter_data_extractor.log` is written to the current directory.
@@ -157,7 +154,7 @@ See [docker/README.md](docker/README.md) for details.
 
 - `summary_report_<timestamp>.json`: per-file summaries and overall statistics
 - `processing_statistics_<timestamp>.json`: overall statistics
-- `error_report_<timestamp>.json`: only written if an unexpected exception escaped file processing. Files that cannot be read, are not valid JSON, or lack a `data` list are only logged (see the log file), not listed here.
+- `error_report_<timestamp>.json`: only written if at least one file could not be processed (it cannot be read, is not valid JSON, or lacks a `data` list). It has one entry per failed file with `file`, `error` and `timestamp`, and `error_count` in the statistics counts the same files.
 
 ### Video misuse analysis (`video_misuse_analysis` by default)
 
