@@ -9,20 +9,12 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add the repository root to the path so the `src` package imports work
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-try:
-    # Try Docker/package import first
-    from src.analyzer import VideoMisuseAnalyzer
-    from src.parser import TwitterDataExtractor
-    from src.utils import format_time_duration
-except ImportError:
-    # Fallback to direct imports
-    from parser import TwitterDataExtractor
-
-    from analyzer import VideoMisuseAnalyzer
-    from utils import format_time_duration
+from src.analyzer import VideoMisuseAnalyzer  # noqa: E402
+from src.parser import TwitterDataExtractor  # noqa: E402
+from src.utils import format_time_duration  # noqa: E402
 
 
 def main():
