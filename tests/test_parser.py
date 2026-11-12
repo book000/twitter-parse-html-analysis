@@ -352,6 +352,41 @@ class TestTwitterDataExtractor(unittest.TestCase):
         # Note: The malformed file might be skipped rather than counted as error
         # depending on validation logic, so we check that processing completes
 
+    def _make_extractor(self):
+        return TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+
+    def test_invalid_structure_log_is_sanitized(self):
+        """File names in the invalid-structure warning must not carry control chars."""
+        bad_file = self.input_dir / "bad\nFAKE LOG LINE.json"
+        bad_file.write_text('{"invalid": 1}', encoding="utf-8")
+
+        extractor = self._make_extractor()
+        mock_logger = MagicMock()
+        with patch.object(extractor, "logger", mock_logger):
+            self.assertIsNone(extractor._process_single_file(bad_file))
+
+        mock_logger.warning.assert_called_once_with(
+            "Invalid file structure: bad FAKE LOG LINE.json"
+        )
+
+    def test_individual_output_error_log_is_sanitized(self):
+        """File names and exceptions in the output-error log must be sanitized."""
+        extractor = self._make_extractor()
+        mock_logger = MagicMock()
+        with (
+            patch.object(extractor, "logger", mock_logger),
+            patch("src.parser.safe_file_path", side_effect=ValueError("boom\nFAKE")),
+        ):
+            extractor._output_individual_file([], Path("evil\nname.json"))
+
+        mock_logger.error.assert_called_once_with(
+            "Individual file output error evil name.json: boom FAKE"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

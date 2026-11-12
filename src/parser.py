@@ -197,7 +197,9 @@ class TwitterDataExtractor:
             data = safe_json_load(str(file_path))
 
             if "data" not in data or not isinstance(data["data"], list):
-                self.logger.warning(f"Invalid file structure: {file_path.name}")
+                self.logger.warning(
+                    f"Invalid file structure: {sanitize_log_message(file_path.name)}"
+                )
                 return None
 
             tweets = data["data"]
@@ -1089,7 +1091,10 @@ class TwitterDataExtractor:
             )
 
         except Exception as e:
-            self.logger.error(f"Individual file output error {file_path.name}: {e}")
+            self.logger.error(
+                f"Individual file output error {sanitize_log_message(file_path.name)}: "
+                f"{sanitize_log_message(str(e))}"
+            )
 
     def _output_final_results(
         self,
