@@ -420,26 +420,20 @@ class TestTwitterDataExtractor(unittest.TestCase):
         self.assertEqual(stats["error_count"], 0)
         self.assertEqual(list(self.reports_dir.glob("error_report_*.json")), [])
 
-    def _make_extractor(self):
-        return TwitterDataExtractor(
-            input_dir=str(self.input_dir),
-            output_dir=str(self.output_dir),
-            reports_dir=str(self.reports_dir),
-        )
+    def test_output_path_is_directory_is_reported(self):
+        """A directory at the output file path is an error, not a success."""
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        (self.output_dir / "sample_extracted.json").mkdir()
 
-    def test_individual_output_error_log_is_sanitized(self):
-        """File names and exceptions in the output-error log must be sanitized."""
-        extractor = self._make_extractor()
-        mock_logger = MagicMock()
-        with (
-            patch.object(extractor, "logger", mock_logger),
-            patch("src.parser.safe_file_path", side_effect=ValueError("boom\nFAKE")),
-        ):
-            extractor._output_individual_file([], Path("evil\nname.json"))
+        stats = self._run_extract_all()
 
-        mock_logger.error.assert_called_once_with(
-            "Individual file output error evil name.json: boom FAKE"
-        )
+        self.assertEqual(stats["processed_files"], 0)
+        self.assertEqual(stats["successful_extractions"], 0)
+        self.assertEqual(stats["error_count"], 1)
+        entries = self._load_single_error_report()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["file"], "sample.json")
+        self.assertIn("Is a directory", entries[0]["error"])
 
     def test_oversized_multibyte_html_truncated_by_bytes(self):
         """Oversized multibyte HTML is truncated to at most 100,000 bytes."""

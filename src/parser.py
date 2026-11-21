@@ -1075,25 +1075,25 @@ class TwitterDataExtractor:
                 self.stats["video_detection_methods"][method] += 1
 
     def _output_individual_file(self, tweets_data: List[Dict], file_path: Path) -> None:
-        """Output individual JSON file immediately."""
-        try:
-            output_filename = file_path.stem + "_extracted.json"
-            # Use safe file path to prevent directory traversal
-            safe_output_path = safe_file_path(output_filename, str(self.output_dir))
-            output_file = Path(safe_output_path)
+        """
+        Output individual JSON file immediately.
 
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(tweets_data, f, ensure_ascii=False, indent=2)
+        Raises:
+            OSError: If the output file cannot be written, for example when a
+                directory exists at the output path. ``extract_all`` records it
+                as a file processing error.
+        """
+        output_filename = file_path.stem + "_extracted.json"
+        # Use safe file path to prevent directory traversal
+        safe_output_path = safe_file_path(output_filename, str(self.output_dir))
+        output_file = Path(safe_output_path)
 
-            self.logger.debug(
-                f"Wrote individual file: {output_file} ({len(tweets_data)} tweets)"
-            )
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(tweets_data, f, ensure_ascii=False, indent=2)
 
-        except Exception as e:
-            self.logger.error(
-                f"Individual file output error {sanitize_log_message(file_path.name)}: "
-                f"{sanitize_log_message(str(e))}"
-            )
+        self.logger.debug(
+            f"Wrote individual file: {output_file} ({len(tweets_data)} tweets)"
+        )
 
     def _output_final_results(
         self,
