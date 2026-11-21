@@ -279,6 +279,11 @@ class TwitterDataExtractor:
 
             soup = BeautifulSoup(html_content, "html.parser") if html_content else None
             tweet_text = tweet.get("tweetText", "")
+            text_is_null = tweet_text is None
+            if text_is_null:
+                # Run the text extractors on "" so other fields are still kept.
+                tweet_text = ""
+                data["extraction_errors"].append("tweetText is null")
 
             quality_score = 0
 
@@ -315,7 +320,7 @@ class TwitterDataExtractor:
             self._extract_sentiment_analysis(tweet_text, data)
             self._extract_network_elements(tweet, data)
 
-            data["data_quality_score"] = quality_score
+            data["data_quality_score"] = 0 if text_is_null else quality_score
 
         except Exception as e:
             data["extraction_errors"].append(str(e))

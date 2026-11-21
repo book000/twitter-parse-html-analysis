@@ -463,6 +463,29 @@ class TestTwitterDataExtractor(unittest.TestCase):
         self.assertEqual(len(truncated.encode("utf-8")), 99999)
         self.assertIn("HTML content too large, truncated", data["extraction_errors"])
 
+    def test_null_tweet_text_is_a_failed_extraction(self):
+        """A record with ``tweetText: null`` scores 0 and is not counted as successful."""
+        self.sample_data["data"].append(
+            {"tweetId": "2", "screenName": "test_user", "tweetText": None}
+        )
+        with open(self.input_dir / "sample.json", "w", encoding="utf-8") as f:
+            json.dump(self.sample_data, f, ensure_ascii=False)
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+
+        data = extractor._extract_comprehensive_tweet_data(
+            self.sample_data["data"][1], "f.json", 1
+        )
+        result = extractor._process_single_file(self.input_dir / "sample.json")
+
+        self.assertEqual(data["data_quality_score"], 0)
+        self.assertEqual(data["extraction_errors"].split("; ")[0], "tweetText is null")
+        self.assertEqual(result["summary"]["successful_tweets"], 1)
+        self.assertEqual(result["summary"]["error_tweets"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
