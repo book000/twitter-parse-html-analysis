@@ -506,7 +506,7 @@ class TwitterDataExtractor:
             data["unique_mentions"] = len(set(mentions))
 
             # URL analysis - ReDoS-safe pattern
-            urls = re.findall(r"https?://[^\s]{1,500}?", tweet_text[:5000])
+            urls = re.findall(r"https?://\S{1,500}", tweet_text[:5000])
             data["url_count"] = len(urls)
             data["urls"] = "; ".join(urls)
 

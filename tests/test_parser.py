@@ -330,6 +330,27 @@ class TestTwitterDataExtractor(unittest.TestCase):
         self.assertIn("@user1", data["mentions"])
         self.assertIn("@user2", data["mentions"])
 
+    def test_url_extraction_keeps_full_urls(self):
+        """URLs are extracted whole, not truncated to their first character."""
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+
+        text = "See https://example.com/a/b?x=1 and http://sub.example.org/path"
+
+        data = {}
+        extractor._extract_content_data(text, data)
+
+        self.assertEqual(data["url_count"], 2)
+        self.assertEqual(
+            data["urls"], "https://example.com/a/b?x=1; http://sub.example.org/path"
+        )
+        self.assertEqual(
+            sorted(data["domains"].split("; ")), ["example.com", "sub.example.org"]
+        )
+
     def test_error_handling(self):
         """Test error handling for malformed data."""
         # Create malformed JSON file
