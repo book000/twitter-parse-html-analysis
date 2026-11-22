@@ -94,6 +94,25 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
 
         self.assertTrue((missing_dir / "video_misuse_analyzer.log").is_file())
 
+    def test_analyze_all_twice_does_not_accumulate_state(self):
+        """Repeated analyze_all() calls report the same counts as a single call."""
+        tweet = dict(self.sample_tweets[0], has_videos=True)
+        with open(self.input_dir / "sample_extracted.json", "w", encoding="utf-8") as f:
+            json.dump([tweet], f)
+        analyzer = VideoMisuseAnalyzer(
+            input_dir=str(self.input_dir), output_dir=str(self.output_dir)
+        )
+
+        with patch.object(analyzer, "logger", MagicMock()):
+            analyzer.analyze_all()
+            analyzer.analyze_all()
+
+        self.assertEqual(len(analyzer.video_misuse_data), 1)
+        self.assertEqual(analyzer.user_profiles["test_user"]["total_violations"], 1)
+        self.assertEqual(
+            analyzer.creator_victims["original_creator"]["misuse_count"], 1
+        )
+
     def test_analyze_all_csv_user_id_column(self):
         """Test that user_id column is included in CSV output with correct order."""
         analyzer = VideoMisuseAnalyzer(

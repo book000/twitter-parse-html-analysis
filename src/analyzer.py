@@ -97,6 +97,10 @@ class VideoMisuseAnalyzer:
         """
         self.logger.info("=== Video misuse analysis started ===")
 
+        self.video_misuse_data.clear()
+        self.user_profiles.clear()
+        self.creator_victims.clear()
+
         # Load and process data
         self._load_parsed_data()
         self._analyze_user_behaviors()
