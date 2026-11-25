@@ -113,6 +113,47 @@ class TestVideoMisuseAnalyzer(unittest.TestCase):
             analyzer.creator_victims["original_creator"]["misuse_count"], 1
         )
 
+    def test_csv_display_names_are_safe_for_spreadsheets(self):
+        names = ["=1+1", "+1+1", "-1+1", "@SUM(A1)", "Normal, Name", ""]
+        tweets = [
+            dict(
+                self.sample_tweets[0],
+                screen_name=f"user_{index}",
+                display_name=name,
+                has_videos=True,
+            )
+            for index, name in enumerate(names)
+        ]
+        with open(self.input_dir / "sample_extracted.json", "w", encoding="utf-8") as f:
+            json.dump(tweets, f)
+        analyzer = VideoMisuseAnalyzer(
+            input_dir=str(self.input_dir), output_dir=str(self.output_dir)
+        )
+
+        with patch.object(analyzer, "logger", MagicMock()):
+            results = analyzer.analyze_all()
+
+        expected = {f"user_{i}": "'" + n if i < 4 else n for i, n in enumerate(names)}
+        for key in ("users_csv", "violations_csv"):
+            with (
+                self.subTest(output=key),
+                open(results[key], newline="", encoding="utf-8") as f,
+            ):
+                rows = list(csv.DictReader(f))
+                self.assertEqual(
+                    {row["screen_name"]: row["display_name"] for row in rows}, expected
+                )
+
+        with open(results["rankings_json"], encoding="utf-8") as f:
+            rankings = json.load(f)
+        self.assertEqual(
+            {
+                row["screen_name"]: row["display_name"]
+                for row in rankings["rankings"]["by_violation_count"]
+            },
+            {f"user_{i}": name for i, name in enumerate(names)},
+        )
+
     def test_analyze_all_csv_user_id_column(self):
         """Test that user_id column is included in CSV output with correct order."""
         analyzer = VideoMisuseAnalyzer(

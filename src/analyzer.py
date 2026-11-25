@@ -17,6 +17,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from .utils import safe_json_load, sanitize_log_message
 
 
+def _csv_display_name(name: object) -> object:
+    if isinstance(name, str) and name.startswith(("=", "+", "-", "@")):
+        return "'" + name
+    return name
+
+
 class VideoMisuseAnalyzer:
     """
     Analyzer for video misuse detection results with comprehensive user profiling
@@ -331,7 +337,7 @@ class VideoMisuseAnalyzer:
                 if profile["total_violations"] > 0:
                     row = {
                         "screen_name": profile["screen_name"],
-                        "display_name": profile["display_name"],
+                        "display_name": _csv_display_name(profile["display_name"]),
                         "user_id": profile["user_id"],
                         "violation_count": profile["total_violations"],
                         "total_engagement": profile["total_engagement"],
@@ -379,7 +385,7 @@ class VideoMisuseAnalyzer:
                 for violation in profile["violations"]:
                     row = {
                         "screen_name": profile["screen_name"],
-                        "display_name": profile["display_name"],
+                        "display_name": _csv_display_name(profile["display_name"]),
                         "user_id": profile["user_id"],
                         "tweet_id": violation["tweet_id"],
                         "video_creator": violation["video_creator"],
