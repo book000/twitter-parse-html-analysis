@@ -21,7 +21,7 @@ if requirements_path.exists():
             line.strip() for line in f if line.strip() and not line.startswith("#")
         ]
 else:
-    requirements = ["beautifulsoup4>=4.12.0", "lxml>=4.9.0"]
+    requirements = ["beautifulsoup4>=4.12.0"]
 
 setup(
     name="twitter-parse-html-analysis",
@@ -53,17 +53,12 @@ setup(
             "seaborn>=0.12.0",
             "scikit-learn>=1.3.0",
         ],
-        "cli": [
-            "click>=8.1.0",
-            "tqdm>=4.65.0",
-        ],
+        "cli": [],
         "full": [
             "pandas>=2.0.0",
             "matplotlib>=3.7.0",
             "seaborn>=0.12.0",
             "scikit-learn>=1.3.0",
-            "click>=8.1.0",
-            "tqdm>=4.65.0",
             "nltk>=3.8",
             "textblob>=0.17.1",
         ],
