@@ -106,7 +106,7 @@ class TwitterDataExtractor:
     def _setup_output_directories(self) -> None:
         """Create necessary output directories."""
         for directory in [self.output_dir, self.reports_dir]:
-            directory.mkdir(exist_ok=True)
+            directory.mkdir(parents=True, exist_ok=True)
 
     def extract_all(self) -> Dict[str, Any]:
         """

@@ -70,6 +70,15 @@ class TestTwitterDataExtractor(unittest.TestCase):
         self.assertEqual(extractor.reports_dir, self.reports_dir)
         self.assertIsNotNone(extractor.language_detector)
 
+    def test_init_creates_nested_output_directories(self):
+        output_dir = Path(self.temp_dir) / "nested_output" / "new" / "output"
+        reports_dir = Path(self.temp_dir) / "nested_reports" / "new" / "reports"
+
+        for _ in range(2):
+            TwitterDataExtractor(self.input_dir, output_dir, reports_dir)
+            self.assertTrue(output_dir.is_dir())
+            self.assertTrue(reports_dir.is_dir())
+
     def test_extract_all_basic(self):
         """Test basic extraction functionality."""
         extractor = TwitterDataExtractor(
