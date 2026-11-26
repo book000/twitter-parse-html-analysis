@@ -13,7 +13,7 @@ A Python tool that parses Twitter/X tweet data saved as JSON (with the tweet's r
 
 ## Requirements
 
-- Python 3.9 or later (CI runs the tests on 3.9 to 3.12)
+- Python 3.10 or later (CI runs the tests on 3.10 to 3.12)
 - Runtime dependency from `requirements.txt` (`beautifulsoup4`)
 
 ## Input format
