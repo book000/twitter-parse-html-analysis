@@ -410,6 +410,25 @@ class TestTwitterDataExtractor(unittest.TestCase):
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]["file"], "broken.json")
 
+    def test_array_input_is_reported_as_invalid_structure(self):
+        (self.input_dir / "array.json").write_text('["data"]', encoding="utf-8")
+
+        stats = self._run_extract_all()
+
+        self.assertEqual(stats["error_count"], 1)
+        entries = self._load_single_error_report()
+        self.assertEqual(entries[0]["error"], "Invalid file structure: array.json")
+
+    def test_video_info_array_is_ignored(self):
+        extractor = TwitterDataExtractor(
+            input_dir=str(self.input_dir),
+            output_dir=str(self.output_dir),
+            reports_dir=str(self.reports_dir),
+        )
+        self.assertIsNone(
+            extractor._parse_cslt_tweet_info_for_video('cslt_tweet_info="[]"')
+        )
+
     def test_invalid_structure_file_is_reported(self):
         """A file without a data list is counted and listed in the error report."""
         (self.input_dir / "bad.json").write_text('{"invalid": 1}', encoding="utf-8")

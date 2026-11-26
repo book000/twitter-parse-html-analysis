@@ -287,7 +287,7 @@ def validate_tweet_data(tweet_data: dict) -> dict:
     Returns:
         Dictionary with validation results and cleaned data
     """
-    validation_results = {
+    validation_results: Dict[str, Any] = {
         "is_valid": True,
         "warnings": [],
         "errors": [],
@@ -329,7 +329,7 @@ def validate_tweet_data(tweet_data: dict) -> dict:
 # Security utility functions
 
 
-def safe_json_load(file_path: str, max_size_mb: int = 50) -> dict:
+def safe_json_load(file_path: str, max_size_mb: int = 50) -> Union[dict, list]:
     """
     Safely load JSON file with size and content validation.
 
@@ -365,7 +365,7 @@ def safe_json_load(file_path: str, max_size_mb: int = 50) -> dict:
     return data
 
 
-def safe_json_loads(json_str: str, max_length: int = 1024 * 1024) -> dict:
+def safe_json_loads(json_str: str, max_length: int = 1024 * 1024) -> Union[dict, list]:
     """
     Safely parse JSON string with length validation.
 

@@ -15,7 +15,7 @@ from collections import defaultdict
 from datetime import datetime
 from html import unescape
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from bs4 import BeautifulSoup
 
@@ -76,7 +76,7 @@ class TwitterDataExtractor:
         self.language_detector = LanguageDetector()
 
         # Statistics
-        self.stats = {
+        self.stats: Dict[str, Any] = {
             "total_files": 0,
             "processed_files": 0,
             "total_tweets": 0,
@@ -207,7 +207,7 @@ class TwitterDataExtractor:
         """
         data = safe_json_load(str(file_path))
 
-        if "data" not in data or not isinstance(data["data"], list):
+        if not isinstance(data, dict) or not isinstance(data.get("data"), list):
             raise ValueError(f"Invalid file structure: {file_path.name}")
 
         tweets = data["data"]
@@ -343,7 +343,7 @@ class TwitterDataExtractor:
                     "div", {"data-testid": re.compile(r"UserAvatar-Container-.*")}
                 )
                 for elem in avatar_elements:
-                    testid = elem.get("data-testid", "")
+                    testid = cast(str, elem.get("data-testid", ""))
                     if testid.startswith("UserAvatar-Container-"):
                         screen_name = testid.replace("UserAvatar-Container-", "")
                         break
@@ -358,9 +358,9 @@ class TwitterDataExtractor:
             if soup:
                 # Look for user buttons with the ID pattern
                 find_pattern = re.compile(r"^\d+-(follow|unfollow|block|unblock)$")
-                user_buttons = soup.find_all(attrs={"data-testid": find_pattern})
+                user_buttons = soup.find_all(None, attrs={"data-testid": find_pattern})
                 for button in user_buttons:
-                    testid = button.get("data-testid", "")
+                    testid = cast(str, button.get("data-testid", ""))
                     match_pattern = r"^(\d+)-(follow|unfollow|block|unblock)$"
                     match = re.search(match_pattern, testid)
                     if match:
@@ -385,9 +385,9 @@ class TwitterDataExtractor:
                 name_candidates = []
 
                 # Extract from aria-label
-                aria_elements = soup.find_all(attrs={"aria-label": True})
+                aria_elements = soup.find_all(None, attrs={"aria-label": True})
                 for elem in aria_elements:
-                    aria_label = elem.get("aria-label", "")
+                    aria_label = cast(str, elem.get("aria-label", ""))
                     if "さんのプロフィール" in aria_label:
                         name_candidates.append(
                             aria_label.replace("さんのプロフィール", "").strip()
@@ -415,7 +415,7 @@ class TwitterDataExtractor:
             if soup:
                 avatar_img = soup.find("img", src=re.compile(r"profile_images"))
                 if avatar_img:
-                    profile_image_url = avatar_img.get("src", "")
+                    profile_image_url = cast(str, avatar_img.get("src", ""))
 
             data["profile_image_url"] = profile_image_url
             data["estimated_followers"] = 0  # Could be enhanced
@@ -438,7 +438,8 @@ class TwitterDataExtractor:
         try:
             # Check for verification indicators
             aria_elements = soup.find_all(
-                attrs={"aria-label": re.compile(r"認証済み|verified", re.IGNORECASE)}
+                None,
+                attrs={"aria-label": re.compile(r"認証済み|verified", re.IGNORECASE)},
             )
             if aria_elements:
                 data["is_verified"] = True
@@ -572,7 +573,7 @@ class TwitterDataExtractor:
                 time_tag = soup.find("time")
                 if time_tag and time_tag.get("datetime"):
                     try:
-                        timestamp_str = time_tag.get("datetime")
+                        timestamp_str = cast(str, time_tag.get("datetime"))
                         timestamp = datetime.fromisoformat(
                             timestamp_str.replace("Z", "+00:00")
                         )
@@ -617,7 +618,7 @@ class TwitterDataExtractor:
             data["has_attached_media"] = len(media_images) > 0
             data["attached_media_count"] = len(media_images)
             data["attached_media_urls"] = "; ".join(
-                [img.get("src", "") for img in media_images]
+                [cast(str, img.get("src", "")) for img in media_images]
             )
 
             # Emoji images
@@ -631,7 +632,9 @@ class TwitterDataExtractor:
             data["video_count"] = len(videos)
 
             # Image alt texts
-            alt_texts = [img.get("alt", "") for img in images if img.get("alt")]
+            alt_texts = [
+                cast(str, img.get("alt", "")) for img in images if img.get("alt")
+            ]
             data["image_alt_texts"] = "; ".join(alt_texts)
 
             # Media types
@@ -666,7 +669,7 @@ class TwitterDataExtractor:
             # Check for retweets/quotes (not considered misuse)
             if soup:
                 retweet_indicators = soup.find_all(
-                    attrs={"data-testid": "socialContext"}
+                    None, attrs={"data-testid": "socialContext"}
                 )
                 if retweet_indicators:
                     data["is_retweet"] = True
@@ -734,6 +737,9 @@ class TwitterDataExtractor:
 
             json_str = unescape(match.group(1))
             tweet_info = safe_json_loads(json_str)
+
+            if not isinstance(tweet_info, dict):
+                return None
 
             video_info_list = tweet_info.get("tweet_video_info", [])
             for video_info in video_info_list:
@@ -968,20 +974,20 @@ class TwitterDataExtractor:
                 return
 
             # CSS classes analysis
-            all_classes = []
+            all_classes: List[str] = []
             for element in soup.find_all(class_=True):
-                all_classes.extend(element.get("class", []))
+                all_classes.extend(cast(List[str], element["class"]))
             data["css_classes_count"] = len(set(all_classes))
             data["total_css_classes"] = len(all_classes)
 
             # data-testid attributes
-            testid_elements = soup.find_all(attrs={"data-testid": True})
-            testids = [elem.get("data-testid") for elem in testid_elements]
+            testid_elements = soup.find_all(None, attrs={"data-testid": True})
+            testids = [cast(str, elem.get("data-testid")) for elem in testid_elements]
             data["data_testids"] = "; ".join(list(set(testids)))
             data["data_testids_count"] = len(set(testids))
 
             # aria-label count
-            aria_elements = soup.find_all(attrs={"aria-label": True})
+            aria_elements = soup.find_all(None, attrs={"aria-label": True})
             data["aria_labels_count"] = len(aria_elements)
 
             # HTML structure analysis
@@ -1188,7 +1194,7 @@ class TwitterDataExtractor:
             )
 
             # Convert datetime objects to strings
-            stats_output = {}
+            stats_output: Dict[str, Any] = {}
             for key, value in self.stats.items():
                 if isinstance(value, datetime):
                     stats_output[key] = value.isoformat()

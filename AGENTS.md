@@ -31,7 +31,7 @@ flake8 src scripts examples --max-complexity=10 --max-line-length=127
 mypy src --ignore-missing-imports --no-strict-optional
 ```
 
-CI (`.github/workflows/ci.yml`) fails on black, isort, flake8 syntax/undefined-name errors (`E9,F63,F7,F82`) and pytest. The complexity/line-length flake8 run and mypy do not fail the build. Run black and isort before committing.
+CI (`.github/workflows/ci.yml`) fails on black, isort, flake8 syntax/undefined-name errors (`E9,F63,F7,F82`), mypy, and pytest. The complexity/line-length flake8 run does not fail the build. Run black and isort before committing.
 
 ## Conventions
 

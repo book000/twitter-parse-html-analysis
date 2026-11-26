@@ -52,8 +52,8 @@ class VideoMisuseAnalyzer:
         self.logger = self._setup_logging(log_level)
 
         # Analysis data storage
-        self.video_misuse_data = []
-        self.user_profiles = defaultdict(
+        self.video_misuse_data: List[Dict[str, Any]] = []
+        self.user_profiles: Dict[str, Dict[str, Any]] = defaultdict(
             lambda: {
                 "screen_name": "",
                 "display_name": "",
@@ -71,7 +71,7 @@ class VideoMisuseAnalyzer:
             }
         )
 
-        self.creator_victims = defaultdict(
+        self.creator_victims: Dict[str, Dict[str, Any]] = defaultdict(
             lambda: {
                 "misuse_count": 0,
                 "misusers": set(),
@@ -407,7 +407,7 @@ class VideoMisuseAnalyzer:
         output_file = self.output_dir / f"user_rankings_{timestamp}.json"
 
         # Prepare rankings data
-        rankings = {
+        rankings: Dict[str, List[Dict[str, Any]]] = {
             "by_violation_count": [],
             "by_total_engagement": [],
             "by_avg_engagement": [],
@@ -416,7 +416,7 @@ class VideoMisuseAnalyzer:
         }
 
         # Convert user profiles to list format
-        users_list = []
+        users_list: List[Dict[str, Any]] = []
         for screen_name, profile in self.user_profiles.items():
             if profile["total_violations"] > 0:
                 user_data = {
@@ -518,13 +518,13 @@ class VideoMisuseAnalyzer:
             avg_engagement_per_user = sum(engagement_totals) / len(engagement_totals)
 
             # Detection method distribution
-            method_counts = Counter()
+            method_counts: Counter[str] = Counter()
             for tweet in self.video_misuse_data:
                 method = tweet.get("video_detection_method", "unknown")
                 method_counts[method] += 1
 
             # Creator analysis
-            creator_counts = Counter()
+            creator_counts: Counter[str] = Counter()
             for tweet in self.video_misuse_data:
                 creator = tweet.get("video_creator", "").strip()
                 if creator:
@@ -600,7 +600,7 @@ class VideoMisuseAnalyzer:
 
     def _analyze_user_patterns(self) -> Dict[str, Any]:
         """Analyze user behavior patterns."""
-        patterns = {
+        patterns: Dict[str, Any] = {
             "repeat_offenders": 0,  # Users with 3+ violations
             "high_engagement_violators": 0,  # Users with avg engagement > 1000
             "multi_creator_abusers": 0,  # Users who abuse multiple creators

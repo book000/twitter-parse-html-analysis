@@ -52,7 +52,6 @@ jobs:
     - name: Type checking with mypy
       run: |
         mypy src --ignore-missing-imports --no-strict-optional
-      continue-on-error: true  # Don't fail CI on mypy errors for now
 
   test:
     name: Test Suite

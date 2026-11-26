@@ -122,7 +122,7 @@ class LanguageDetector:
 
     def _analyze_character_scripts(self, text: str) -> Dict[str, Any]:
         """Analyze character scripts in the text."""
-        scripts = {
+        scripts: Dict[str, Any] = {
             "hiragana": 0,
             "katakana": 0,
             "kanji": 0,
@@ -192,7 +192,7 @@ class LanguageDetector:
 
     def _analyze_words_and_patterns(self, text: str) -> Dict[str, Any]:
         """Analyze word patterns and structure."""
-        analysis = {
+        analysis: Dict[str, Any] = {
             "word_count": 0,
             "avg_word_length": 0,
             "has_spaces": " " in text,
@@ -218,7 +218,7 @@ class LanguageDetector:
 
     def _extract_linguistic_features(self, text: str) -> Dict[str, Any]:
         """Extract language-specific linguistic features."""
-        features = {
+        features: Dict[str, Any] = {
             "japanese_particles": 0,
             "japanese_copula": 0,
             "english_articles": 0,
